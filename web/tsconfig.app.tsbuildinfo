@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","../shared/preferences.ts","../shared/adapters/preferencesstorage.ts","../shared/domain/usecases/announceactionusecase.ts","../shared/domain/usecases/loadpreferencesusecase.ts","../shared/domain/usecases/savepreferencesusecase.ts"],"version":"5.9.3"}

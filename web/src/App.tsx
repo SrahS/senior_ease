@@ -1,14 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-
-type AccessibilityPreferences = {
-  fontScale: number;
-  contrast: 'padrão' | 'alto';
-  spacing: 'compacto' | 'amplo';
-  simplifiedMode: boolean;
-  visualFeedback: boolean;
-  extraConfirmation: boolean;
-  reminders: boolean;
-};
+import { defaultPreferences, storageKey, type AccessibilityPreferences } from '../../shared/preferences';
+import { LocalStoragePreferencesAdapter } from '../../shared/adapters/preferencesStorage';
+import { AnnounceActionUseCase } from '../../shared/domain/useCases/announceActionUseCase';
+import { LoadPreferencesUseCase } from '../../shared/domain/useCases/loadPreferencesUseCase';
+import { SavePreferencesUseCase } from '../../shared/domain/useCases/savePreferencesUseCase';
 
 type Task = {
   id: number;
@@ -17,14 +12,10 @@ type Task = {
   completed: boolean;
 };
 
-const defaultPreferences: AccessibilityPreferences = {
-  fontScale: 1,
-  contrast: 'padrão',
-  spacing: 'amplo',
-  simplifiedMode: true,
-  visualFeedback: true,
-  extraConfirmation: true,
-  reminders: true,
+type HistoryItem = {
+  id: number;
+  title: string;
+  detail: string;
 };
 
 const starterTasks: Task[] = [
@@ -33,23 +24,45 @@ const starterTasks: Task[] = [
   { id: 3, title: 'Entrar no encontro virtual', detail: 'Abrir link e entrar 10 minutos antes', completed: false },
 ];
 
-const storageKey = 'seniorease.preferences';
+const starterHistory: HistoryItem[] = [
+  { id: 1, title: 'Olá, Maria!', detail: 'Seu perfil foi preparado com configurações simples.' },
+  { id: 2, title: 'Tarefa concluída', detail: 'Você marcou a conta da água como resolvida.' },
+];
+
+const preferencesStorage = new LocalStoragePreferencesAdapter(window.localStorage);
+const loadPreferencesUseCase = new LoadPreferencesUseCase(preferencesStorage);
+const savePreferencesUseCase = new SavePreferencesUseCase(preferencesStorage);
+const announceActionUseCase = new AnnounceActionUseCase();
 
 function App() {
   const [preferences, setPreferences] = useState<AccessibilityPreferences>(defaultPreferences);
   const [tasks, setTasks] = useState<Task[]>(starterTasks);
   const [completedCount, setCompletedCount] = useState(1);
+  const [savedMessage, setSavedMessage] = useState('Preferências salvas localmente');
+  const [activeTab, setActiveTab] = useState<'painel' | 'tarefas' | 'perfil' | 'configuracoes'>('painel');
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [history, setHistory] = useState<HistoryItem[]>(starterHistory);
+  const [confirmAction, setConfirmAction] = useState<string | null>(null);
+  const [reminderMessage, setReminderMessage] = useState('Lembrete: revise sua tarefa antes de continuar.');
+  const [guidedTaskId, setGuidedTaskId] = useState<number | null>(null);
+  const [guidedStep, setGuidedStep] = useState(0);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey);
-    if (stored) {
-      const parsed = JSON.parse(stored) as AccessibilityPreferences;
-      setPreferences(parsed);
-    }
+    const loadPreferences = async () => {
+      const loaded = await loadPreferencesUseCase.execute(storageKey);
+      setPreferences(loaded);
+    };
+
+    void loadPreferences();
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(preferences));
+    const savePreferences = async () => {
+      await savePreferencesUseCase.execute(storageKey, preferences);
+      setSavedMessage('Preferências salvas localmente');
+    };
+
+    void savePreferences();
   }, [preferences]);
 
   const stats = useMemo(() => ({
@@ -58,17 +71,67 @@ function App() {
   }), [tasks.length, completedCount]);
 
   const toggleTask = (id: number) => {
+    const target = tasks.find(task => task.id === id);
+    if (target?.title.includes('água') && preferences.extraConfirmation) {
+      setConfirmAction(`Deseja concluir a tarefa ${target.title}?`);
+      return;
+    }
+
     const updated = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
     setTasks(updated);
     setCompletedCount(updated.filter(task => task.completed).length);
+    setHistory(prev => [{ id: Date.now(), title: 'Tarefa atualizada', detail: 'A tarefa mudou de estado com sucesso.' }, ...prev].slice(0, 4));
+    setSavedMessage(announceActionUseCase.execute('Tarefa atualizada'));
+  };
+
+  const confirmCriticalAction = () => {
+    setConfirmAction(null);
+    setReminderMessage('Ação confirmada. Tudo pronto para seguir.');
+    setSavedMessage(announceActionUseCase.execute('Ação crítica confirmada'));
+  };
+
+  const startGuidedFlow = (id: number) => {
+    const task = tasks.find(item => item.id === id);
+    if (!task) return;
+
+    setGuidedTaskId(id);
+    setGuidedStep(1);
+    setReminderMessage(`Guia para ${task.title}: siga os passos com calma.`);
+    setSavedMessage(announceActionUseCase.execute(`Guia para ${task.title}`));
+  };
+
+  const advanceGuidedFlow = () => {
+    if (guidedStep < 3) {
+      setGuidedStep(prev => prev + 1);
+      return;
+    }
+
+    setGuidedTaskId(null);
+    setGuidedStep(0);
+    setReminderMessage('Guia concluído. Você pode seguir para a próxima tarefa.');
   };
 
   const updatePreference = <K extends keyof AccessibilityPreferences>(key: K, value: AccessibilityPreferences[K]) => {
-    setPreferences(prev => ({ ...prev, [key]: value }));
+    setPreferences((prev: AccessibilityPreferences) => ({ ...prev, [key]: value }));
   };
 
+  const handleProfileSave = () => {
+    setHistory(prev => [{ id: Date.now(), title: 'Perfil salvo', detail: 'Seu perfil ficou pronto para usar.' }, ...prev].slice(0, 4));
+    setSavedMessage(announceActionUseCase.execute('Perfil atualizado'));
+  };
+
+  const handleNextStep = () => {
+    if (onboardingStep < 2) {
+      setOnboardingStep(onboardingStep + 1);
+    } else {
+      setOnboardingStep(0);
+    }
+  };
+
+  const activeGuidedTask = tasks.find(task => task.id === guidedTaskId);
+
   return (
-    <div className={`app-shell ${preferences.contrast === 'alto' ? 'contrast-high' : ''} ${preferences.spacing === 'compacto' ? 'spacing-compact' : 'spacing-wide'}`}>
+    <div className={`app-shell ${preferences.contrast === 'alto' ? 'contrast-high' : ''} ${preferences.spacing === 'compacto' ? 'spacing-compact' : 'spacing-wide'} ${preferences.warmMode ? 'warm-mode' : ''}`}>
       <header className="hero-card">
         <div>
           <p className="eyebrow">SeniorEase</p>
@@ -77,13 +140,102 @@ function App() {
             Uma plataforma feita para tornar tarefas, preferências e lembretes mais claros para quem valoriza autonomia.
           </p>
         </div>
-        <button className="primary-btn" onClick={() => updatePreference('extraConfirmation', !preferences.extraConfirmation)}>
-          {preferences.extraConfirmation ? 'Confirmações ativadas' : 'Confirmações desativadas'}
-        </button>
+        <div className="hero-actions">
+          <button className="primary-btn" onClick={() => updatePreference('extraConfirmation', !preferences.extraConfirmation)}>
+            {preferences.extraConfirmation ? 'Confirmações ativadas' : 'Confirmações desativadas'}
+          </button>
+          <button className="secondary-btn" onClick={() => setOnboardingStep(1)}>
+            Iniciar ajuda
+          </button>
+        </div>
       </header>
 
+      <nav className="tab-bar" aria-label="Módulos do SeniorEase">
+        {[
+          { key: 'painel', label: 'Painel' },
+          { key: 'tarefas', label: 'Tarefas' },
+          { key: 'perfil', label: 'Perfil' },
+          { key: 'configuracoes', label: 'Configurações' },
+        ].map(tab => (
+          <button key={tab.key} className={`tab-button ${activeTab === tab.key ? 'active' : ''}`} onClick={() => setActiveTab(tab.key as typeof activeTab)}>
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      {onboardingStep > 0 && (
+        <section className="panel onboarding-card" aria-label="Guia inicial">
+          <h2>Passo {onboardingStep} de 3</h2>
+          <p>
+            {onboardingStep === 1 && 'Comece escolhendo o modo simplificado para reduzir a quantidade de informação.'}
+            {onboardingStep === 2 && 'Depois, confirme suas tarefas com calma e leia os lembretes antes de avançar.'}
+            {onboardingStep === 3 && 'Pronto! Você já pode usar o SeniorEase com mais confiança.'}
+          </p>
+          <button className="primary-btn" onClick={handleNextStep}>
+            {onboardingStep === 3 ? 'Fechar guia' : 'Próximo passo'}
+          </button>
+        </section>
+      )}
+
+      {confirmAction && (
+        <section className="panel confirmation-card" aria-label="Confirmação necessária">
+          <h2>Confirmar ação</h2>
+          <p>{confirmAction}</p>
+          <div className="hero-actions">
+            <button className="primary-btn" onClick={confirmCriticalAction}>Sim, confirmar</button>
+            <button className="secondary-btn" onClick={() => setConfirmAction(null)}>Cancelar</button>
+          </div>
+        </section>
+      )}
+
+      <section className="panel reminder-card" aria-label="Lembrete importante">
+        <h2>Lembrete</h2>
+        <p>{reminderMessage}</p>
+      </section>
+
       <main className="content-grid">
-        <section className="panel" aria-labelledby="preferences-title">
+        {activeTab === 'perfil' && (
+          <section className="panel" aria-labelledby="profile-title">
+          <div className="panel-heading">
+            <h2 id="profile-title">Perfil do usuário</h2>
+            <p>Configure o nome, a função e o modo de navegação com linguagem simples.</p>
+          </div>
+
+          <div className="control-group">
+            <label htmlFor="user-name">Nome</label>
+            <input id="user-name" value={preferences.userName} onChange={(e) => updatePreference('userName', e.target.value)} className="text-input" />
+          </div>
+
+          <div className="control-group">
+            <label htmlFor="user-role">Função</label>
+            <input id="user-role" value={preferences.userRole} onChange={(e) => updatePreference('userRole', e.target.value)} className="text-input" />
+          </div>
+
+          <div className="control-group">
+            <label>Modo de navegação</label>
+            <div className="chip-row">
+              {(['simplificado', 'padrão'] as const).map(option => (
+                <button key={option} className={`chip ${preferences.navigationMode === option ? 'selected' : ''}`} onClick={() => updatePreference('navigationMode', option)}>
+                  {option === 'simplificado' ? 'Simplificado' : 'Padrão'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="control-group">
+            <label className="switch-row">
+              <input type="checkbox" checked={preferences.notifications} onChange={(e) => updatePreference('notifications', e.target.checked)} />
+              <span>Notificações e lembretes</span>
+            </label>
+          </div>
+
+          <button className="primary-btn save-btn" onClick={handleProfileSave}>Salvar perfil</button>
+          <p className="assistive-text">{savedMessage}</p>
+          </section>
+        )}
+
+        {activeTab === 'configuracoes' && (
+          <section className="panel" aria-labelledby="preferences-title">
           <div className="panel-heading">
             <h2 id="preferences-title">Painel de personalização</h2>
             <p>Adapte o espaço, a leitura e a segurança para o seu ritmo.</p>
@@ -129,10 +281,16 @@ function App() {
               <input type="checkbox" checked={preferences.reminders} onChange={(e) => updatePreference('reminders', e.target.checked)} />
               <span>Lembretes</span>
             </label>
+            <label className="switch-row">
+              <input type="checkbox" checked={preferences.warmMode} onChange={(e) => updatePreference('warmMode', e.target.checked)} />
+              <span>Modo acolhedor</span>
+            </label>
           </div>
-        </section>
+          </section>
+        )}
 
-        <section className="panel" aria-labelledby="tasks-title">
+        {activeTab === 'tarefas' && (
+          <section className="panel" aria-labelledby="tasks-title">
           <div className="panel-heading">
             <h2 id="tasks-title">Organizador simplificado</h2>
             <p>Fluxo claro, passos curtos e confirmação antes de concluir.</p>
@@ -149,6 +307,26 @@ function App() {
             </div>
           </div>
 
+          <div className="hero-actions" style={{ marginTop: '16px' }}>
+            <button className="secondary-btn" onClick={() => startGuidedFlow(tasks[0]?.id ?? 1)}>Ver passos</button>
+          </div>
+
+          {guidedTaskId !== null && (
+            <section className="panel onboarding-card" aria-label="Passos guiados">
+              <h2>Guia de tarefa</h2>
+              <p>Etapa {guidedStep} de 3</p>
+              <p>
+                {guidedStep === 1 && `Comece por ${activeGuidedTask?.title ?? 'a tarefa selecionada'}. Leia o objetivo antes de avançar.`}
+                {guidedStep === 2 && 'Depois, confirme se a informação está correta e prossiga com calma.'}
+                {guidedStep === 3 && 'Por fim, marque a tarefa como concluída e revise o lembrete.'}
+              </p>
+              <div className="hero-actions">
+                <button className="primary-btn" onClick={advanceGuidedFlow}>{guidedStep === 3 ? 'Fechar guia' : 'Próximo passo'}</button>
+                <button className="secondary-btn" onClick={() => { setGuidedTaskId(null); setGuidedStep(0); }}>Cancelar</button>
+              </div>
+            </section>
+          )}
+
           <ul className="task-list">
             {tasks.map(task => (
               <li key={task.id} className={`task-item ${task.completed ? 'done' : ''}`}>
@@ -162,7 +340,42 @@ function App() {
               </li>
             ))}
           </ul>
-        </section>
+          </section>
+        )}
+
+        {activeTab === 'painel' && (
+          <section className="panel" aria-labelledby="overview-title">
+            <div className="panel-heading">
+              <h2 id="overview-title">Resumo do dia</h2>
+              <p>Uma visão rápida para quem precisa de clareza e poucas etapas.</p>
+            </div>
+            <div className="stats-row">
+              <div className="stat-card">
+                <strong>{stats.done}</strong>
+                <span>Tarefas concluídas</span>
+              </div>
+              <div className="stat-card">
+                <strong>{preferences.navigationMode === 'simplificado' ? 'Sim' : 'Não'}</strong>
+                <span>Modo simplificado</span>
+              </div>
+            </div>
+            <p className="assistive-text">{preferences.extraConfirmation ? 'Confirmações extras ativas' : 'Confirmações extras desligadas'}</p>
+
+            <div className="history-card">
+              <h3>Histórico simples</h3>
+              <ul className="task-list">
+                {history.map(item => (
+                  <li key={item.id} className="task-item">
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

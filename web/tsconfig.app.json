@@ -16,6 +16,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "../shared"],
   "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts", "src/vitest.setup.ts"]
 }
