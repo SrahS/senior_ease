@@ -1,4 +1,3 @@
-```md
 # SeniorEase 🚀
 
 **SeniorEase** é uma plataforma acessível e inclusiva, desenvolvida em um monorepo, que visa simplificar a rotina diária de idosos e usuários que buscam clareza, alta usabilidade e adaptação ergonômica em suas interfaces. O projeto conta com arquitetura limpa (*Clean Architecture*), suporte completo a preferências de acessibilidade persistidas e paridade multiplataforma entre **Web (React/Vite)** e **Mobile (React Native/Expo)**.
@@ -35,7 +34,6 @@ senior_ease/
 ├── mobile/           # Aplicação Mobile (React Native + Expo)
 └── package.json      # Configurações globais e workspaces do pnpm
 
-```
 
 ---
 
