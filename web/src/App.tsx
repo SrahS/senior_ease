@@ -25,7 +25,7 @@ const starterTasks: Task[] = [
 ];
 
 const starterHistory: HistoryItem[] = [
-  { id: 1, title: 'Olá, Maria!', detail: 'Seu perfil foi preparado com configurações simples.' },
+  { id: 1, title: 'Olá, Alissin!', detail: 'Seu perfil foi preparado com configurações simples.' },
   { id: 2, title: 'Tarefa concluída', detail: 'Você marcou a conta da água como resolvida.' },
 ];
 

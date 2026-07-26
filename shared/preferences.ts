@@ -24,7 +24,7 @@ export const defaultPreferences: AccessibilityPreferences = {
   navigationMode: 'simplificado',
   notifications: true,
   warmMode: true,
-  userName: 'Maria da Silva',
+  userName: 'Alissin',
   userRole: 'Estudante',
 };
 
