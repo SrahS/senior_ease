@@ -1,35 +1,67 @@
-# Senior Ease 📱💻
+# SeniorEase 🚀
 
-Um projeto estruturado em formato de **Monorepo** que contempla uma aplicação Mobile (React Native / Expo) e uma plataforma Web, compartilhando lógicas de domínio, regras de negócio e tipagens.
+**SeniorEase** é uma plataforma acessível e inclusiva, desenvolvida em um monorepo, que visa simplificar a rotina diária de idosos e usuários que buscam clareza, alta usabilidade e adaptação ergonômica em suas interfaces. O projeto conta com arquitetura limpa (*Clean Architecture*), suporte completo a preferências de acessibilidade persistidas e paridade multiplataforma entre **Web (React/Vite)** e **Mobile (React Native/Expo)**.
 
-## 🛠 Tecnologias e Ferramentas
+---
 
-Este projeto utiliza o que há de mais moderno no ecossistema JavaScript/TypeScript, gerenciado de forma otimizada com **pnpm**.
+## 🛠️ Tecnologias e Arquitetura
 
-* **Gerenciador de Pacotes:** [pnpm](https://pnpm.io/) (Workspaces)
-* **Mobile (App):** React Native (0.81) + Expo (SDK 54)
-* **Web:** React 19 + Vite
-* **Linguagem:** TypeScript
-* **Armazenamento Local:** AsyncStorage
+O projeto é estruturado como um monorepo gerenciado por **pnpm**, dividindo lógicas de domínio compartilhadas entre as plataformas:
+* **Frontend Web:** React 18, TypeScript, Vite, Lucide Icons, CSS Customizável.
+* **Mobile:** React Native, Expo, React Native AsyncStorage, Expo Vector Icons.
+* **Core / Lógica:** TypeScript puro, implementando Domain-Driven Design (Clean Architecture com Use Cases e Adapters isolados).
+* **Testes:** Vitest e Testing Library para validação de fluxos e componentes.
 
-## 🏗 Arquitetura e Estrutura de Pastas
+---
 
-O projeto segue princípios de **Clean Architecture**, isolando as regras de negócio das camadas de UI. A pasta `shared` é responsável por manter a lógica que transita entre as plataformas Web e Mobile.
+## ⚙️ Funcionalidades de Acessibilidade
+
+* **Modo Simplificado:** Oculta elementos complexos e foca apenas nas ações essenciais.
+* **Alto Contraste:** Alterna a interface para traços grossos, fundo de alto contraste e fontes em negrito estrito.
+* **Feedback Visual Reforçado:** Adiciona bordas marcantes e selos visuais explícitos (ex: `LIGADO` / `DESLIGADO`) em botões e chaves de ativação.
+* **Modo Acolhedor:** Cores pastéis e paletas suaves para reduzir o cansaço visual.
+* **Espaçamento Ajustável:** Alternância dinâmica entre densidades padrão e ampla (botões e áreas de toque ampliadas).
+* **Confirmações de Segurança:** Barreiras anti-erro para ações críticas (como conclusão de tarefas importantes).
+
+---
+
+## 📦 Estrutura do Monorepo
 
 ```text
 senior_ease/
-├── app/                  # Aplicativo Mobile (Expo / React Native)
-│   ├── App.tsx           # Ponto de entrada da UI Mobile
-│   ├── index.js          # Entry file customizado para o Metro Bundler
-│   ├── metro.config.js   # Configuração do Metro para enxergar o monorepo
-│   └── package.json
-├── web/                  # Aplicação Web (Vite / React)
-│   ├── src/
-│   └── package.json
-├── shared/               # Lógica compartilhada (Clean Architecture)
-│   ├── domain/
-│   │   └── useCases/     # Casos de uso (ex: LoadPreferencesUseCase, SavePreferencesUseCase)
-│   ├── adapters/         # Adaptadores de infraestrutura (ex: AsyncStoragePreferencesAdapter)
-│   └── preferences/      # Interfaces e entidades de domínio genéricas
-├── pnpm-workspace.yaml   # Declaração dos workspaces do monorepo
-└── package.json          # Raiz do projeto
+├── shared/           # Domínio compartilhado (Use Cases, Adaptadores, Tipos globais)
+├── web/              # Aplicação Web (React + Vite)
+├── mobile/           # Aplicação Mobile (React Native + Expo)
+└── package.json      # Configurações globais e workspaces do pnpm
+
+## Como Rodar o Projeto
+
+Certifique-se de ter o **Node.js** e o **pnpm** instalados na sua máquina.
+
+### 1. Instalação das Dependências
+Na raiz do projeto, instale todas as dependências do monorepo:
+```bash
+pnpm install
+
+## 2. Rodando a Aplicação Web
+
+Para iniciar o ambiente de desenvolvimento web:
+
+```bash
+pnpm --filter seniorease-web dev
+
+## 3. Rodando a Aplicação Mobile
+
+Para iniciar o Expo (React Native):
+
+```bash
+pnpm --filter seniorease-mobile start -c
+
+(Escaneie o QR Code com o aplicativo Expo Go no seu celular ou abra em um emulador)
+
+## 🧪 Executando os Testes
+
+Para rodar a suíte de testes automatizados e validar a integridade dos componentes e fluxos:
+
+```bash
+pnpm test
