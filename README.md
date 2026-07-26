@@ -33,7 +33,7 @@ senior_ease/
 ├── web/              # Aplicação Web (React + Vite)
 ├── mobile/           # Aplicação Mobile (React Native + Expo)
 └── package.json      # Configurações globais e workspaces do pnpm
-
+```
 
 ---
 
@@ -81,6 +81,3 @@ pnpm test
 
 ```
 
-```
-
-```
