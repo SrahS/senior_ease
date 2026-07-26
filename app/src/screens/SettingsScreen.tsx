@@ -5,7 +5,7 @@ import { usePreferences } from '../hooks/usePreferences';
 export function SettingsScreen() {
   const { preferences, updatePreference } = usePreferences();
 
-  // Lendo todas as preferências do contexto
+
   const isAmplo = preferences.spacing === 'amplo';
   const isAltoContraste = preferences.contrast === 'alto';
   const isSimplificado = preferences.simplifiedMode;
@@ -23,14 +23,14 @@ export function SettingsScreen() {
           Painel de personalização
         </Text>
         
-        {/* MODO SIMPLIFICADO: Esconde o texto explicativo se estiver ativo */}
+        {}
         {!isSimplificado && (
           <Text style={[styles.cardText, isAltoContraste && styles.textAltoContraste]}>
             Adapte o espaço, a leitura e a segurança para o seu ritmo.
           </Text>
         )}
         
-        {/* Contraste */}
+        {}
         <Text style={[styles.sectionLabel, isAltoContraste && styles.textAltoContraste]}>
           Contraste
         </Text>
@@ -43,7 +43,7 @@ export function SettingsScreen() {
                 isAmplo && styles.chipAmplo,
                 preferences.contrast === option && styles.chipSelected,
                 preferences.contrast === option && isAltoContraste && styles.chipSelectedAlto,
-                // FEEDBACK VISUAL: Adiciona uma borda grossa no botão selecionado
+
                 isFeedback && preferences.contrast === option && styles.chipFeedbackAtivo
               ]} 
               onPress={() => updatePreference('contrast', option)}
@@ -59,7 +59,7 @@ export function SettingsScreen() {
           ))}
         </View>
 
-        {/* Espaçamento */}
+        {}
         <Text style={[styles.sectionLabel, isAltoContraste && styles.textAltoContraste]}>
           Espaçamento
         </Text>
@@ -72,7 +72,7 @@ export function SettingsScreen() {
                 isAmplo && styles.chipAmplo,
                 preferences.spacing === option && styles.chipSelected,
                 isAltoContraste && preferences.spacing === option && styles.chipSelectedAlto,
-                // FEEDBACK VISUAL: Adiciona uma borda grossa no botão selecionado
+
                 isFeedback && preferences.spacing === option && styles.chipFeedbackAtivo
               ]} 
               onPress={() => updatePreference('spacing', option)}
@@ -89,7 +89,7 @@ export function SettingsScreen() {
 
         <View style={styles.divider} />
 
-        {/* Switches de Acessibilidade */}
+        {}
         <View style={[styles.row, isAmplo && styles.rowAmplo, isFeedback && styles.rowFeedback]}>
           <Text style={[styles.label, isAltoContraste && styles.textAltoContraste]}>Modo simplificado</Text>
           <View style={styles.switchContainer}>
@@ -139,7 +139,7 @@ export function SettingsScreen() {
         </View>
       </View>
 
-      {/* LEMBRETES: Este bloco inteiro só existe se isLembretes for true */}
+      {}
       {isLembretes && (
         <View style={[
           styles.lembreteCard, 
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   rowAmplo: { marginTop: 24 }, 
   chipSelectedAlto: { backgroundColor: '#000000' }, 
   
-  // Estilos do Feedback Visual
+
   chipFeedbackAtivo: { borderWidth: 3, borderColor: '#1d4ed8' },
   rowFeedback: { backgroundColor: '#f8fafc', padding: 12, borderRadius: 12, marginBottom: 8 },
   switchContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },

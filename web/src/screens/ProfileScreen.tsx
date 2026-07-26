@@ -37,7 +37,7 @@ export function ProfileScreen() {
         <label style={{ fontWeight: isAltoContraste ? '900' : '600' }}>Modo de navegação</label>
         <div className="chip-row">
           
-          {/* Botão Simplificado: Agora altera diretamente a variável oficial do aplicativo */}
+          {}
           <button 
             className={`chip ${preferences.simplifiedMode ? 'selected' : ''} ${isFeedback && preferences.simplifiedMode ? 'feedback-active' : ''}`} 
             onClick={() => updatePreference('simplifiedMode', true)}
@@ -45,7 +45,7 @@ export function ProfileScreen() {
             Simplificado
           </button>
 
-          {/* Botão Padrão: Desliga o modo simplificado */}
+          {}
           <button 
             className={`chip ${!preferences.simplifiedMode ? 'selected' : ''} ${isFeedback && !preferences.simplifiedMode ? 'feedback-active' : ''}`} 
             onClick={() => updatePreference('simplifiedMode', false)}

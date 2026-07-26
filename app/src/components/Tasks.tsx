@@ -7,9 +7,9 @@ import { usePreferences } from '../hooks/usePreferences';
 export function TasksScreen() {
   const { tasks, toggleTask, completedCount } = useTasks();
   const { appendHistory } = useHistory();
-  const { preferences } = usePreferences(); // Lendo o estado global!
+  const { preferences } = usePreferences();
 
-  // Variáveis de estilo dinâmico
+
   const isAmplo = preferences.spacing === 'amplo';
   const isAltoContraste = preferences.contrast === 'alto';
   const isSimplificado = preferences.simplifiedMode;
@@ -49,12 +49,12 @@ export function TasksScreen() {
               styles.taskTitle, 
               isAltoContraste && styles.textAltoContraste,
               task.completed && styles.taskDoneTitle,
-              task.completed && isAltoContraste && { color: '#000000' } // Sobrescreve verde para preto
+              task.completed && isAltoContraste && { color: '#000000' }
             ]}>
               {task.title}
             </Text>
             
-            {/* MODO SIMPLIFICADO: Esconde o detalhe da tarefa se ativo */}
+            {}
             {!isSimplificado && (
               <Text style={[styles.cardText, isAltoContraste && styles.textAltoContraste]}>
                 {task.detail}
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   taskTitle: { fontSize: 15, color: '#0f172a', fontWeight: '600' },
   
   taskDone: { backgroundColor: '#dcfce7', borderRadius: 16, padding: 12 },
-  taskDoneAltoContraste: { backgroundColor: '#e5e7eb', borderWidth: 2, borderColor: '#000' }, // Cinza ao invés de verde
+  taskDoneAltoContraste: { backgroundColor: '#e5e7eb', borderWidth: 2, borderColor: '#000' },
   taskDoneTitle: { textDecorationLine: 'line-through', color: '#166534' },
   
   smallButton: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999 },

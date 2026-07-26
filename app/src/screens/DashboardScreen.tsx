@@ -20,7 +20,7 @@ export function DashboardScreen() {
     { id: 'profile', label: 'Perfil salvo', done: preferences.userName.trim() !== '' },
   ], [completedCount, preferences.userName, showOnboarding]);
 
-  // Lógica de Progresso
+
   const progresso = checklistItems.filter(item => item.done).length;
   const isTudoPronto = progresso === checklistItems.length;
 

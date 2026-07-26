@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { PreferencesProvider, usePreferences } from './contexts/PreferencesContext';
 import { useTasks } from './hooks/useTasks';
 
-// Importação dos ícones (Lucide é a versão Web do Feather)
+
 import { Home, CheckSquare, User, Settings, HelpCircle } from 'lucide-react';
 
 import { DashboardScreen } from './screens/DashboardScreen';
@@ -32,7 +32,7 @@ function MainApp() {
     preferences.warmMode ? 'warm-mode' : ''
   ].join(' ').trim();
 
-  // Lista de abas com seus respectivos ícones
+
   const navTabs = [
     { key: 'painel', label: 'Início', Icon: Home },
     { key: 'tarefas', label: 'Tarefas', Icon: CheckSquare },
@@ -58,7 +58,7 @@ function MainApp() {
         </div>
       </header>
 
-      {/* Barra de Navegação Atualizada com Ícones */}
+      {}
       <nav className="tab-bar" aria-label="Módulos do SeniorEase">
         {navTabs.map(tab => {
           const isActive = activeTab === tab.key;

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-// Adicionamos a aba 'ajuda'
+
 export type ActiveView = 'painel' | 'tarefas' | 'perfil' | 'configuracoes' | 'ajuda';
 
 interface NavigationBarProps {
@@ -29,7 +29,7 @@ export function NavigationBar({ activeView, onViewChange }: NavigationBarProps) 
             style={[styles.tab, isActive && styles.activeTab]} 
             onPress={() => onViewChange(tab.key)}
           >
-            {/* Ícone maior e acolhedor */}
+            {}
             <Feather 
               name={tab.icon as any} 
               size={24} 

@@ -5,15 +5,15 @@ const onboardingStorageKey = 'seniorease.onboarding.completed';
 const announceActionUseCase = new AnnounceActionUseCase();
 
 export function useOnboarding() {
-  // Estados do Boas-vindas
+
   const [showOnboarding, setShowOnboarding] = useState(() => window.localStorage.getItem(onboardingStorageKey) !== 'true');
   const [onboardingStep, setOnboardingStep] = useState(0);
 
-  // Estados do Guia de Tarefas (Guided Flow)
+
   const [guidedTaskId, setGuidedTaskId] = useState<number | null>(null);
   const [guidedStep, setGuidedStep] = useState(0);
 
-  // Efeito para salvar no localStorage assim que o usuário termina o tutorial
+
   useEffect(() => {
     window.localStorage.setItem(onboardingStorageKey, showOnboarding ? 'false' : 'true');
   }, [showOnboarding]);

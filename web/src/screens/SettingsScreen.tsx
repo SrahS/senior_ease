@@ -3,7 +3,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 export function SettingsScreen() {
   const { preferences, updatePreference } = usePreferences();
 
-  // Variáveis para facilitar a leitura das regras condicionais
+
   const isFeedback = preferences.visualFeedback;
   const isAltoContraste = preferences.contrast === 'alto';
 
@@ -38,7 +38,7 @@ export function SettingsScreen() {
         <label style={{ fontWeight: isAltoContraste ? '900' : '600' }}>Espaçamento</label>
         <div className="chip-row">
           {(['padrão', 'amplo'] as const).map(option => {
-            // Verifica se a opção está ativa (considerando 'padrão' como a ausência de 'amplo')
+
             const isSelected = preferences.spacing === option || (option === 'padrão' && preferences.spacing !== 'amplo');
             return (
               <button 
@@ -55,7 +55,7 @@ export function SettingsScreen() {
 
       <div className="control-group" style={{ marginTop: '24px' }}>
         
-        {/* Modo Simplificado */}
+        {}
         <div className={`switch-row ${isFeedback ? 'feedback-active' : ''}`}>
           <label className="switch-toggle">
             <input type="checkbox" checked={preferences.simplifiedMode} onChange={(e) => updatePreference('simplifiedMode', e.target.checked)} />
@@ -65,7 +65,7 @@ export function SettingsScreen() {
           {isFeedback && <span className="feedback-badge">{preferences.simplifiedMode ? 'LIGADO' : 'DESLIGADO'}</span>}
         </div>
 
-        {/* Feedback Visual */}
+        {}
         <div className={`switch-row ${isFeedback ? 'feedback-active' : ''}`}>
           <label className="switch-toggle">
             <input type="checkbox" checked={preferences.visualFeedback} onChange={(e) => updatePreference('visualFeedback', e.target.checked)} />
@@ -75,7 +75,7 @@ export function SettingsScreen() {
           {isFeedback && <span className="feedback-badge">{preferences.visualFeedback ? 'LIGADO' : 'DESLIGADO'}</span>}
         </div>
 
-        {/* Lembretes */}
+        {}
         <div className={`switch-row ${isFeedback ? 'feedback-active' : ''}`}>
           <label className="switch-toggle">
             <input type="checkbox" checked={preferences.reminders} onChange={(e) => updatePreference('reminders', e.target.checked)} />
@@ -85,7 +85,7 @@ export function SettingsScreen() {
           {isFeedback && <span className="feedback-badge">{preferences.reminders ? 'LIGADO' : 'DESLIGADO'}</span>}
         </div>
 
-        {/* Modo Acolhedor */}
+        {}
         <div className={`switch-row ${isFeedback ? 'feedback-active' : ''}`}>
           <label className="switch-toggle">
             <input type="checkbox" checked={preferences.warmMode} onChange={(e) => updatePreference('warmMode', e.target.checked)} />

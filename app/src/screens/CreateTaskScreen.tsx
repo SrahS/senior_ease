@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-// import { useTasks } from '../hooks/useTasks';
+
 
 export function CreateTaskScreen({ onBack }: { onBack: () => void }) {
   const [title, setTitle] = useState('');
   const [detail, setDetail] = useState('');
-  // const { addTask } = useTasks();
+
 
   const handleSave = () => {
     if (!title) return;
-    // addTask({ title, detail, completed: false });
-    onBack(); // Volta para a tela anterior
+
+    onBack();
   };
 
   return (

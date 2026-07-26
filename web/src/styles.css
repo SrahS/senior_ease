@@ -15,7 +15,7 @@ body { margin: 0; background: #f2f7ff; }
 button, input, textarea { font: inherit; }
 button { cursor: pointer; }
 
-/* Transições suaves globais */
+
 button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-input {
   transition: all 180ms ease;
 }
@@ -36,7 +36,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
-  max-width: 800px; /* Mantém o visual parecido com mobile/tablet centralizado */
+  max-width: 800px; 
   margin: 0 auto;
 }
 
@@ -76,7 +76,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 .chip { background: #e2e8f0; color: #334155; }
 .chip.selected { background: #2563eb; color: white; }
 
-/* Tab Bar (Menu Inferior do Mobile adaptado para o topo) */
+
 .tab-bar {
   display: flex;
   justify-content: space-between;
@@ -104,7 +104,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 }
 .tab-button.active { background: #2563eb; color: white; }
 
-/* Inputs e Formulários */
+
 .control-group { margin-top: 16px; }
 .text-input { 
   width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; 
@@ -113,7 +113,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 .switch-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 
-/* Lista de Tarefas */
+
 .task-list { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 12px; }
 .task-item {
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
@@ -123,7 +123,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 .task-item.done h3 { text-decoration: line-through; color: #166534; }
 .task-item p { margin: 4px 0 0; color: #475569; font-size: 0.95rem; }
 
-/* Linha de Estatísticas */
+
 .stats-row { display: flex; gap: 10px; margin-top: 16px; }
 .stat-card { flex: 1; padding: 12px; border-radius: 16px; background: #f8fafc; display: flex; flex-direction: column; align-items: center; }
 .stat-card strong { font-size: 1.5rem; color: #0f172a; }
@@ -135,7 +135,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
    (Idêntico ao warmMode do Mobile)
    ========================================= */
 .warm-mode {
-  background: #fff7ed; /* Fundo pastel quentinho */
+  background: #fff7ed; 
 }
 .warm-mode .hero-card, .warm-mode .panel, .warm-mode .tab-bar, .warm-mode .task-item {
   background: #ffffff;
@@ -158,11 +158,11 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 .contrast-high .text-input,
 .contrast-high .stat-card {
   background: #ffffff;
-  border: 2px solid #000000; /* Borda grossa preta absoluta */
-  box-shadow: none; /* Remove sombras sutis, mantém traços fortes */
+  border: 2px solid #000000; 
+  box-shadow: none; 
 }
 
-/* Força TODOS os textos para preto absoluto e fonte grossa */
+
 .contrast-high,
 .contrast-high h1, .contrast-high h2, .contrast-high h3,
 .contrast-high p, .contrast-high span, .contrast-high label,
@@ -173,14 +173,14 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   font-weight: 900 !important;
 }
 
-/* Botão Primário: Fundo preto absoluto, texto branco */
+
 .contrast-high .primary-btn {
   background: #000000;
   color: #ffffff !important;
   border: 2px solid #000000;
 }
 
-/* Abas ativas, botões secundários e chips: Fundo branco, borda preta */
+
 .contrast-high .secondary-btn,
 .contrast-high .chip,
 .contrast-high .tab-button.active {
@@ -195,7 +195,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 }
 
 .contrast-high .task-item.done {
-  background: #e5e7eb; /* Cinza ao invés de verde, igual mobile */
+  background: #e5e7eb; 
   border: 2px solid #000000;
 }
 
@@ -203,7 +203,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 /* =========================================
    ACESSBILIDADE: ESPAÇAMENTO AMPLO E COMPACTO
    ========================================= */
-/* Amplo (Aumenta padding das telas e botões) */
+
 .spacing-wide .hero-card, 
 .spacing-wide .panel {
   padding: 32px;
@@ -224,7 +224,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   margin-bottom: 8px;
 }
 
-/* Compacto (Reduz o padrão) */
+
 .spacing-compact .hero-card, 
 .spacing-compact .panel {
   padding: 12px;
@@ -240,12 +240,12 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 /* =========================================
    ACESSBILIDADE: FEEDBACK VISUAL REFORÇADO
    ========================================= */
-/* Chips e Switchs */
+
 .chip.feedback-active {
-  border: 3px solid #1d4ed8 !important; /* Azul forte indicando seleção */
+  border: 3px solid #1d4ed8 !important; 
 }
 
-/* Caixinha extra nas linhas de ativação */
+
 .switch-row.feedback-active {
   background-color: #f8fafc;
   padding: 12px;
@@ -254,13 +254,13 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   margin-bottom: 8px;
 }
 
-/* Linha lateral grossa na lista de tarefas */
+
 .task-item.feedback-active {
   border-left: 6px solid #2563eb;
   border-bottom: 2px solid #cbd5e1;
 }
 
-/* Badge LIGADO/DESLIGADO */
+
 .feedback-badge {
   font-size: 0.75rem;
   font-weight: 700;
@@ -313,7 +313,7 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   transform: translateX(22px);
 }
 
-/* Regras do Switch para o Alto Contraste */
+
 .contrast-high .switch-slider {
   border: 2px solid #000000;
   background-color: #ffffff;

@@ -53,12 +53,12 @@ export function TasksScreen() {
                 styles.taskTitle, 
                 isAltoContraste && styles.textAltoContraste,
                 task.completed && styles.taskDoneTitle,
-                task.completed && isAltoContraste && { color: '#000000' } // Em alto contraste, o verde vira preto
+                task.completed && isAltoContraste && { color: '#000000' }
               ]}>
                 {task.title}
               </Text>
               
-              {/* Oculta os detalhes para não sobrecarregar a tela se o modo for simplificado */}
+              {}
               {!isSimplificado && (
                 <Text style={[styles.cardText, isAltoContraste && styles.textAltoContraste]}>
                   {task.detail}
@@ -83,7 +83,7 @@ export function TasksScreen() {
         ))}
       </View>
 
-      {/* Lembrete extra caso a pessoa não saiba o que fazer */}
+      {}
       {isLembretes && tasks.length > completedCount && (
         <View style={[styles.lembreteCard, isAmplo && styles.cardAmplo, isAltoContraste && styles.cardAltoContraste]}>
           <Text style={[styles.cardTitle, isAltoContraste && styles.textAltoContraste]}>Lembrete de Tarefa</Text>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   
   taskItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, marginBottom: 12 },
   taskItemAmplo: { paddingVertical: 16, marginBottom: 16 },
-  taskItemFeedback: { borderBottomWidth: 1, borderBottomColor: '#cbd5e1', paddingBottom: 16 }, // Linha separadora forte
+  taskItemFeedback: { borderBottomWidth: 1, borderBottomColor: '#cbd5e1', paddingBottom: 16 },
   taskTextBlock: { flex: 1, paddingRight: 12 },
   taskTitle: { fontSize: 15, color: '#0f172a', fontWeight: '600' },
   

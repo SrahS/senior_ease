@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FirebaseAuthAdapter } from '../../../shared/adapters/firebaseAuthAdapter';
 import { User } from '../../../shared/domain/repositories/authRepository';
 
-// Instância do adaptador injetada
+
 const authAdapter = new FirebaseAuthAdapter();
 
 export function useAuth() {
@@ -10,7 +10,7 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Aqui você também pode configurar um listener onAuthStateChanged do Firebase
+
     authAdapter.getCurrentUser().then(loggedUser => {
       setUser(loggedUser);
       setIsLoading(false);

@@ -23,7 +23,7 @@ export function ConfirmationModal({
       visible={visible}
       onRequestClose={onCancel}
     >
-      {/* Fundo escuro semitransparente */}
+      {}
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
           <Text style={styles.cardTitle}>{title}</Text>
@@ -47,13 +47,13 @@ export function ConfirmationModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Efeito de escurecer o fundo
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
   modalCard: {
-    backgroundColor: '#fef3c7', // Mantendo o tom de alerta amarelado
+    backgroundColor: '#fef3c7',
     borderRadius: 20,
     padding: 24,
     width: '100%',
