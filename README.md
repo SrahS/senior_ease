@@ -25,14 +25,41 @@ O projeto é estruturado como um monorepo gerenciado por **pnpm**, dividindo ló
 
 ---
 
-## 📦 Estrutura do Monorepo
+# Estrutura Detalhada do SeniorEase
+
+Abaixo está o detalhamento completo de cada pasta e módulo que compõe a arquitetura do monorepo, separando o núcleo compartilhado, a versão Web e a versão Mobile.
+
+---
 
 ```text
 senior_ease/
-├── shared/           # Domínio compartilhado (Use Cases, Adaptadores, Tipos globais)
-├── web/              # Aplicação Web (React + Vite)
-├── mobile/           # Aplicação Mobile (React Native + Expo)
-└── package.json      # Configurações globais e workspaces do pnpm
+├── shared/                  # Domínio e Regras de Negócio Agnósticas (Clean Architecture)
+│   ├── adapters/            # Adaptadores de armazenamento (AsyncStorage para Mobile, LocalStorage para Web)
+│   ├── domain/              # Entidades, Value Objects e Casos de Uso (Use Cases) globais
+│   └── preferences.ts       # Tipos, chaves de armazenamento e configurações padrão de acessibilidade
+│
+├── web/                     # Aplicação Frontend Web (React + Vite)
+│   ├── src/
+│   │   ├── contexts/        # Gerenciamento de estado global (PreferencesContext)
+│   │   ├── hooks/           # Hooks personalizados para tarefas e histórico (useTasks, useHistory)
+│   │   ├── screens/         # Telas principais (Dashboard, Tasks, Profile, Settings, Help, etc.)
+│   │   ├── App.tsx          # Componente raiz, roteamento de abas e layout principal (Shell)
+│   │   ├── main.tsx         # Ponto de entrada da aplicação React DOM
+│   │   └── index.css        # Estilos globais, temas de acessibilidade (Alto Contraste, Warm Mode) e Switches
+│   ├── package.json         # Dependências específicas da Web (lucide-react, react, vite)
+│   └── vite.config.ts       # Configurações do empacotador Vite
+│
+├── mobile/                  # Aplicação Mobile (React Native + Expo)
+│   ├── src/
+│   │   ├── contexts/        # Gerenciamento de estado global integrado ao AsyncStorage
+│   │   ├── hooks/           # Hooks nativos (useTasks, usePreferences, useOnboarding)
+│   │   ├── screens/         # Telas adaptadas para toque e navegação mobile
+│   │   └── App.tsx          # Componente raiz da aplicação React Native
+│   ├── app.json             # Configurações do Expo e metadados do aplicativo nativo
+│   └── package.json         # Dependências específicas do Mobile (@expo/vector-icons, react-native)
+│
+└── package.json             # Workspace raiz e scripts globais do pnpm para gerenciamento do monorepo
+
 ```
 
 ---
