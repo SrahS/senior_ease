@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTasks } from '../hooks/useTasks';
 import { useHistory } from '../hooks/useHistory';
 import { usePreferences } from '../hooks/usePreferences';
+import { Feather } from '@expo/vector-icons';
 
 export function TasksScreen() {
   const { tasks, toggleTask, completedCount } = useTasks();
@@ -91,6 +92,12 @@ export function TasksScreen() {
           </Text>
         </View>
       )}
+  <TouchableOpacity 
+    style={styles.fab} 
+    onPress={() => onViewChange('criar_tarefa')}
+  >
+    <Feather name="plus" size={32} color="#ffffff" />
+  </TouchableOpacity> 
     </>
   );
 }
@@ -126,4 +133,20 @@ const styles = StyleSheet.create({
   smallButtonPending: { backgroundColor: '#e0f2fe' },
   smallButtonDone: { backgroundColor: '#d1fae5' },
   smallButtonText: { color: '#0f172a', fontWeight: '700' },
+  fab: {
+  position: 'absolute',
+  bottom: 24,
+  right: 24,
+  backgroundColor: '#2563eb',
+  width: 64,
+  height: 64,
+  borderRadius: 32,
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 6, 
+  shadowColor: '#000', 
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+},
 });

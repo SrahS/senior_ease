@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { Feather } from '@expo/vector-icons'; // Ícones nativos do Expo
+import { Feather } from '@expo/vector-icons';
 
 // Adicionamos a aba 'ajuda'
 export type ActiveView = 'painel' | 'tarefas' | 'perfil' | 'configuracoes' | 'ajuda';

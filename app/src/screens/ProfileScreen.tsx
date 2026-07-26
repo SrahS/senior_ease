@@ -8,10 +8,8 @@ export function ProfileScreen() {
   const { appendHistory } = useHistory();
   const [savedMessage, setSavedMessage] = useState('');
 
-  // Lendo o estado global
   const isAmplo = preferences.spacing === 'amplo';
   const isAltoContraste = preferences.contrast === 'alto';
-  const isSimplificado = preferences.simplifiedMode;
   const isFeedback = preferences.visualFeedback;
   const isLembretes = preferences.reminders;
 
@@ -23,22 +21,18 @@ export function ProfileScreen() {
 
   return (
     <>
-      <View style={[
-        styles.card, 
-        isAmplo && styles.cardAmplo, 
-        isAltoContraste && styles.cardAltoContraste
-      ]}>
+      <View style={[styles.card, isAmplo && styles.cardAmplo, isAltoContraste && styles.cardAltoContraste]}>
         <Text style={[styles.cardTitle, isAltoContraste && styles.textAltoContraste, { marginBottom: 12 }]}>
           Perfil do usuário
         </Text>
         
-        {/* Oculta explicação se modo simplificado estiver ativo */}
-        {!isSimplificado && (
+        {!preferences.simplifiedMode && (
           <Text style={[styles.cardText, isAltoContraste && styles.textAltoContraste, { marginBottom: 16 }]}>
-            Preencha seus dados para que a experiência seja personalizada.
+            Configure o nome, a função e o modo de navegação.
           </Text>
         )}
         
+        <Text style={[styles.inputLabel, isAltoContraste && styles.textAltoContraste]}>Nome</Text>
         <TextInput 
           style={[
             styles.input, 
@@ -48,10 +42,11 @@ export function ProfileScreen() {
           ]} 
           value={preferences.userName} 
           onChangeText={(value) => updatePreference('userName', value)} 
-          placeholder="Nome" 
+          placeholder="Ex: João da Silva" 
           placeholderTextColor={isAltoContraste ? '#475569' : '#94a3b8'}
         />
         
+        <Text style={[styles.inputLabel, isAltoContraste && styles.textAltoContraste, { marginTop: 16 }]}>Função</Text>
         <TextInput 
           style={[
             styles.input, 
@@ -61,9 +56,56 @@ export function ProfileScreen() {
           ]} 
           value={preferences.userRole} 
           onChangeText={(value) => updatePreference('userRole', value)} 
-          placeholder="Função" 
+          placeholder="Ex: Aposentado, Voluntário..." 
           placeholderTextColor={isAltoContraste ? '#475569' : '#94a3b8'}
         />
+        
+        {/* Modos de Navegação transformados em Chips */}
+        <Text style={[styles.inputLabel, isAltoContraste && styles.textAltoContraste, { marginTop: 24, marginBottom: 8 }]}>
+          Modo de navegação
+        </Text>
+        <View style={styles.chipRow}>
+          <TouchableOpacity 
+            style={[
+              styles.chip, 
+              preferences.simplifiedMode && styles.chipSelected,
+              isAltoContraste && styles.chipAltoContraste,
+              isAltoContraste && preferences.simplifiedMode && styles.chipSelectedAltoContraste,
+              isFeedback && preferences.simplifiedMode && styles.chipFeedback
+            ]}
+            onClick={() => updatePreference('simplifiedMode', true)}
+            onPress={() => updatePreference('simplifiedMode', true)}
+          >
+            <Text style={[
+              styles.chipText, 
+              preferences.simplifiedMode && styles.chipTextSelected,
+              isAltoContraste && styles.textAltoContraste,
+              isAltoContraste && preferences.simplifiedMode && styles.textAltoContrasteBotao
+            ]}>
+              Simplificado
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[
+              styles.chip, 
+              !preferences.simplifiedMode && styles.chipSelected,
+              isAltoContraste && styles.chipAltoContraste,
+              isAltoContraste && !preferences.simplifiedMode && styles.chipSelectedAltoContraste,
+              isFeedback && !preferences.simplifiedMode && styles.chipFeedback
+            ]}
+            onPress={() => updatePreference('simplifiedMode', false)}
+          >
+            <Text style={[
+              styles.chipText, 
+              !preferences.simplifiedMode && styles.chipTextSelected,
+              isAltoContraste && styles.textAltoContraste,
+              isAltoContraste && !preferences.simplifiedMode && styles.textAltoContrasteBotao
+            ]}>
+              Padrão
+            </Text>
+          </TouchableOpacity>
+        </View>
         
         <View style={[styles.row, isAmplo && styles.rowAmplo, isFeedback && styles.rowFeedback]}>
           <Text style={[styles.label, isAltoContraste && styles.textAltoContraste]}>Notificações e lembretes</Text>
@@ -89,10 +131,9 @@ export function ProfileScreen() {
 
       {savedMessage ? <Text style={[styles.info, isAltoContraste && styles.textAltoContraste]}>{savedMessage}</Text> : null}
 
-      {/* LEMBRETE: Dica útil se a opção estiver ativada */}
       {isLembretes && (
         <View style={[styles.lembreteCard, isAmplo && styles.cardAmplo, isAltoContraste && styles.cardAltoContraste]}>
-          <Text style={[styles.cardTitle, isAltoContraste && styles.textAltoContraste]}>Dica de Perfil</Text>
+          <Text style={[styles.cardTitle, isAltoContraste && styles.textAltoContraste]}>Dica</Text>
           <Text style={[styles.cardText, isAltoContraste && styles.textAltoContraste, { marginBottom: 0 }]}>
             Manter seu nome atualizado ajuda o aplicativo a interagir melhor com você no histórico.
           </Text>
@@ -105,29 +146,41 @@ export function ProfileScreen() {
 const styles = StyleSheet.create({
   card: { backgroundColor: '#ffffff', borderRadius: 20, padding: 18, marginTop: 12, borderWidth: 1, borderColor: '#e2e8f0' },
   lembreteCard: { backgroundColor: '#eff6ff', borderRadius: 20, padding: 18, marginTop: 16, borderWidth: 1, borderColor: '#bfdbfe' },
-  
   cardAmplo: { padding: 32, marginTop: 24 },
+  
   cardAltoContraste: { borderColor: '#000000', borderWidth: 2, backgroundColor: '#ffffff' },
   textAltoContraste: { color: '#000000', fontWeight: '900' },
   textAltoContrasteBotao: { color: '#ffffff', fontWeight: '900' }, 
   
-  input: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 12, marginTop: 8 },
-  inputAmplo: { padding: 18, fontSize: 16, marginTop: 12 },
+  cardTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+  cardText: { fontSize: 15, color: '#475569', marginTop: 6 },
+  
+  inputLabel: { fontSize: 14, fontWeight: '600', color: '#0f172a', marginBottom: 4 },
+  input: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 12, fontSize: 16 },
+  inputAmplo: { padding: 18, fontSize: 16 },
   inputAltoContraste: { borderColor: '#000000', borderWidth: 2, color: '#000000', fontWeight: '700' },
   inputFeedback: { borderColor: '#1d4ed8', borderWidth: 2 },
   
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 },
-  rowAmplo: { marginTop: 24 },
-  rowFeedback: { backgroundColor: '#f8fafc', padding: 12, borderRadius: 12 },
+  /* Estilos dos Chips */
+  chipRow: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
+  chip: { backgroundColor: '#e2e8f0', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 999, minHeight: 44, justifyContent: 'center' },
+  chipSelected: { backgroundColor: '#2563eb' },
+  chipAltoContraste: { backgroundColor: '#ffffff', borderWidth: 2, borderColor: '#000000' },
+  chipSelectedAltoContraste: { backgroundColor: '#000000' },
+  chipFeedback: { borderWidth: 3, borderColor: '#1d4ed8' },
+  chipText: { fontSize: 15, fontWeight: '700', color: '#334155' },
+  chipTextSelected: { color: '#ffffff' },
+  
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 },
+  rowAmplo: { marginTop: 32 },
+  rowFeedback: { backgroundColor: '#f8fafc', padding: 12, borderRadius: 12, borderWidth: 2, borderColor: '#bfdbfe' },
+  label: { fontSize: 15, color: '#0f172a', flex: 1, marginRight: 12 },
   
   button: { marginTop: 16, backgroundColor: '#2563eb', paddingVertical: 14, borderRadius: 999, alignItems: 'center' },
   buttonAmplo: { paddingVertical: 20, marginTop: 24 },
   buttonAltoContraste: { backgroundColor: '#000000', borderWidth: 2, borderColor: '#000000' },
   buttonFeedback: { borderWidth: 3, borderColor: '#1e3a8a' },
-  
-  cardTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  cardText: { fontSize: 15, color: '#475569', marginTop: 6 },
-  label: { fontSize: 15, color: '#0f172a', flex: 1, marginRight: 12 },
   buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
-  info: { marginTop: 10, color: '#2563eb', fontWeight: '600', textAlign: 'center' },
+  
+  info: { marginTop: 10, color: '#16a34a', fontWeight: '700', textAlign: 'center' },
 });
