@@ -1,3 +1,4 @@
+```md
 # SeniorEase 🚀
 
 **SeniorEase** é uma plataforma acessível e inclusiva, desenvolvida em um monorepo, que visa simplificar a rotina diária de idosos e usuários que buscam clareza, alta usabilidade e adaptação ergonômica em suas interfaces. O projeto conta com arquitetura limpa (*Clean Architecture*), suporte completo a preferências de acessibilidade persistidas e paridade multiplataforma entre **Web (React/Vite)** e **Mobile (React Native/Expo)**.
@@ -34,14 +35,22 @@ senior_ease/
 ├── mobile/           # Aplicação Mobile (React Native + Expo)
 └── package.json      # Configurações globais e workspaces do pnpm
 
+```
+
+---
+
 ## Como Rodar o Projeto
 
 Certifique-se de ter o **Node.js** e o **pnpm** instalados na sua máquina.
 
 ### 1. Instalação das Dependências
+
 Na raiz do projeto, instale todas as dependências do monorepo:
+
 ```bash
 pnpm install
+
+```
 
 ## 2. Rodando a Aplicação Web
 
@@ -50,6 +59,10 @@ Para iniciar o ambiente de desenvolvimento web:
 ```bash
 pnpm --filter seniorease-web dev
 
+```
+
+*(Acesse pelo link gerado no terminal, geralmente http://localhost:3000)*
+
 ## 3. Rodando a Aplicação Mobile
 
 Para iniciar o Expo (React Native):
@@ -57,7 +70,9 @@ Para iniciar o Expo (React Native):
 ```bash
 pnpm --filter seniorease-mobile start -c
 
-(Escaneie o QR Code com o aplicativo Expo Go no seu celular ou abra em um emulador)
+```
+
+*(Escaneie o QR Code com o aplicativo Expo Go no seu celular ou abra em um emulador)*
 
 ## 🧪 Executando os Testes
 
@@ -65,3 +80,9 @@ Para rodar a suíte de testes automatizados e validar a integridade dos componen
 
 ```bash
 pnpm test
+
+```
+
+```
+
+```
