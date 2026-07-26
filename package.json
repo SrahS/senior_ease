@@ -1,20 +1,12 @@
 {
   "name": "seniorease-monorepo",
   "private": true,
-  "workspaces": [
-    "web",
-    "app"
-  ],
   "scripts": {
-    "web:dev": "npm --workspace web run dev",
-    "web:build": "npm --workspace web run build",
-    "web:test": "npm --workspace web run test",
-    "mobile:start": "npm --workspace app run start",
-    "mobile:build": "npm --workspace app run build"
-  },
-  "overrides": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "web:dev": "pnpm --filter seniorease-web dev",
+    "web:build": "pnpm --filter seniorease-web build",
+    "web:test": "pnpm --filter seniorease-web test",
+    "mobile:start": "pnpm --filter seniorease-app start",
+    "mobile:build": "pnpm --filter seniorease-app build"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

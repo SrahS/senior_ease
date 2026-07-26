@@ -29,6 +29,7 @@ const starterHistory: HistoryItem[] = [
   { id: 2, title: 'Tarefa concluída', detail: 'Você marcou a conta da água como resolvida.' },
 ];
 
+const onboardingStorageKey = 'seniorease.onboarding.completed';
 const preferencesStorage = new LocalStoragePreferencesAdapter(window.localStorage);
 const loadPreferencesUseCase = new LoadPreferencesUseCase(preferencesStorage);
 const savePreferencesUseCase = new SavePreferencesUseCase(preferencesStorage);
@@ -41,6 +42,7 @@ function App() {
   const [savedMessage, setSavedMessage] = useState('Preferências salvas localmente');
   const [activeTab, setActiveTab] = useState<'painel' | 'tarefas' | 'perfil' | 'configuracoes'>('painel');
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [showOnboarding, setShowOnboarding] = useState(() => window.localStorage.getItem(onboardingStorageKey) !== 'true');
   const [history, setHistory] = useState<HistoryItem[]>(starterHistory);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
   const [reminderMessage, setReminderMessage] = useState('Lembrete: revise sua tarefa antes de continuar.');
@@ -55,6 +57,10 @@ function App() {
 
     void loadPreferences();
   }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(onboardingStorageKey, showOnboarding ? 'false' : 'true');
+  }, [showOnboarding]);
 
   useEffect(() => {
     const savePreferences = async () => {
@@ -83,6 +89,12 @@ function App() {
     setHistory(prev => [{ id: Date.now(), title: 'Tarefa atualizada', detail: 'A tarefa mudou de estado com sucesso.' }, ...prev].slice(0, 4));
     setSavedMessage(announceActionUseCase.execute('Tarefa atualizada'));
   };
+
+  const checklistItems = [
+    { id: 'welcome', label: 'Primeiros passos', done: !showOnboarding },
+    { id: 'task', label: 'Concluir uma tarefa', done: completedCount > 0 },
+    { id: 'profile', label: 'Salvar perfil', done: preferences.userName !== defaultPreferences.userName || preferences.userRole !== defaultPreferences.userRole },
+  ];
 
   const confirmCriticalAction = () => {
     setConfirmAction(null);
@@ -124,7 +136,9 @@ function App() {
     if (onboardingStep < 2) {
       setOnboardingStep(onboardingStep + 1);
     } else {
+      setShowOnboarding(false);
       setOnboardingStep(0);
+      setReminderMessage('Primeira visita encerrada. Você já pode começar a usar o SeniorEase.');
     }
   };
 
@@ -163,16 +177,21 @@ function App() {
         ))}
       </nav>
 
-      {onboardingStep > 0 && (
+      {showOnboarding && (
         <section className="panel onboarding-card" aria-label="Guia inicial">
-          <h2>Passo {onboardingStep} de 3</h2>
+          <h2>Primeiros passos</h2>
           <p>
-            {onboardingStep === 1 && 'Comece escolhendo o modo simplificado para reduzir a quantidade de informação.'}
-            {onboardingStep === 2 && 'Depois, confirme suas tarefas com calma e leia os lembretes antes de avançar.'}
-            {onboardingStep === 3 && 'Pronto! Você já pode usar o SeniorEase com mais confiança.'}
+            {onboardingStep === 0 && 'Comece escolhendo o modo simplificado para reduzir a quantidade de informação.'}
+            {onboardingStep === 1 && 'Depois, confirme suas tarefas com calma e leia os lembretes antes de avançar.'}
+            {onboardingStep === 2 && 'Pronto! Você já pode usar o SeniorEase com mais confiança.'}
           </p>
+          <div className="progress-dots" aria-label="Progresso do onboarding">
+            {[0, 1, 2].map(step => (
+              <span key={step} className={`dot ${onboardingStep === step ? 'active' : ''}`} />
+            ))}
+          </div>
           <button className="primary-btn" onClick={handleNextStep}>
-            {onboardingStep === 3 ? 'Fechar guia' : 'Próximo passo'}
+            {onboardingStep === 2 ? 'Começar a usar' : 'Próximo passo'}
           </button>
         </section>
       )}
@@ -191,6 +210,21 @@ function App() {
       <section className="panel reminder-card" aria-label="Lembrete importante">
         <h2>Lembrete</h2>
         <p>{reminderMessage}</p>
+      </section>
+
+      <section className="panel checklist-card" aria-label="Checklist do dia">
+        <div className="panel-heading">
+          <h2>Checklist do dia</h2>
+          <p>Veja rapidamente o que já foi concluído.</p>
+        </div>
+        <ul className="checklist-list">
+          {checklistItems.map(item => (
+            <li key={item.id} className={`checklist-item ${item.done ? 'done' : ''}`}>
+              <span className="checkmark">{item.done ? '✓' : '•'}</span>
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <main className="content-grid">

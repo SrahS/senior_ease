@@ -183,6 +183,57 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   background: linear-gradient(135deg, #eff6ff 0%, #fef3c7 100%);
 }
 
+.progress-dots {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.25);
+}
+
+.dot.active {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.checklist-card {
+  margin-bottom: 16px;
+  background: #fefce8;
+}
+
+.checklist-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.checklist-item.done {
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 700;
+}
+
+.checklist-item .checkmark {
+  font-size: 1.05rem;
+}
+
 .history-card {
   margin-top: 16px;
   padding: 16px;

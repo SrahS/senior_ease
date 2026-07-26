@@ -2,7 +2,6 @@
   "expo": {
     "name": "SeniorEase",
     "slug": "seniorease",
-    "sdkVersion": "51.0.0",
     "platforms": ["ios", "android"],
     "android": {
       "package": "com.seniorease.app"
