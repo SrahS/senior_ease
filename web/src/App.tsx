@@ -11,15 +11,26 @@ import { ProfileScreen } from './screens/ProfileScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { HelpScreen } from './screens/HelpScreen';
 import { CreateTaskScreen } from './screens/CreateTaskScreen';
+import { AuthScreen } from './screens/AuthScreen';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../shared/firebase/config';
 
 type ActiveTab = 'painel' | 'tarefas' | 'perfil' | 'configuracoes' | 'ajuda' | 'criar_tarefa';
 
 function MainApp() {
   const { preferences, updatePreference } = usePreferences();
-  const { tasks, completedCount, totalCount, toggleTaskState, addTask } = useTasks(); 
-  
+  const { tasks, completedCount, totalCount, toggleTaskState, addTask } = useTasks();
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('painel');
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'ajuda') setShowOnboarding(false);
@@ -41,6 +52,10 @@ function MainApp() {
     { key: 'ajuda', label: 'Ajuda', Icon: HelpCircle },
   ] as const;
 
+  if (!isAuthenticated) {
+    return <AuthScreen onLogin={() => setIsAuthenticated(true)} />
+  }
+
   return (
     <div className={shellClasses}>
       <header className="hero-card">
@@ -58,14 +73,14 @@ function MainApp() {
         </div>
       </header>
 
-      {}
+      { }
       <nav className="tab-bar" aria-label="Módulos do SeniorEase">
         {navTabs.map(tab => {
           const isActive = activeTab === tab.key;
           return (
-            <button 
-              key={tab.key} 
-              className={`tab-button ${isActive ? 'active' : ''}`} 
+            <button
+              key={tab.key}
+              className={`tab-button ${isActive ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.key as ActiveTab)}
             >
               <tab.Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
@@ -77,21 +92,21 @@ function MainApp() {
 
       <main className="content-grid">
         {activeTab === 'painel' && <DashboardScreen completedCount={completedCount} showOnboarding={showOnboarding} />}
-        
+
         {activeTab === 'tarefas' && (
-          <TasksScreen 
-            tasks={tasks} 
-            completedCount={completedCount} 
-            totalCount={totalCount} 
-            onToggle={toggleTaskState} 
-            onNavigate={setActiveTab} 
+          <TasksScreen
+            tasks={tasks}
+            completedCount={completedCount}
+            totalCount={totalCount}
+            onToggle={toggleTaskState}
+            onNavigate={setActiveTab}
           />
         )}
-        
+
         {activeTab === 'criar_tarefa' && (
-          <CreateTaskScreen 
-            onBack={() => setActiveTab('tarefas')} 
-            onSave={addTask} 
+          <CreateTaskScreen
+            onBack={() => setActiveTab('tarefas')}
+            onSave={addTask}
           />
         )}
 

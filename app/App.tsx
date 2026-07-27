@@ -10,12 +10,14 @@ import { TasksScreen } from './src/screens/TasksScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { HelpScreen } from './src/screens/HelpScreen';
+import { AuthScreen } from './src/screens/AuthScreen';
 
 export type ActiveView = 'painel' | 'tarefas' | 'perfil' | 'configuracoes' | 'ajuda';
 
 function MainApp() {
   const [activeView, setActiveView] = useState<ActiveView>('painel');
   const { preferences } = usePreferences();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const renderScreen = () => {
     switch (activeView) {
@@ -32,12 +34,16 @@ function MainApp() {
     }
   };
 
+  if (!isAuthenticated) {
+    return <AuthScreen onLogin={() => setIsAuthenticated(true)} />
+  }
+
   return (
     <SafeAreaView style={[styles.safeArea, preferences.warmMode && styles.warmSafeArea]}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
+
         <NavigationBar activeView={activeView} onViewChange={setActiveView} />
-        
+
         {renderScreen()}
 
       </ScrollView>

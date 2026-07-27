@@ -93,7 +93,7 @@ pnpm --filter seniorease-web dev
 Para iniciar o Expo (React Native):
 
 ```bash
-pnpm --filter seniorease-mobile start -c
+pnpm --filter ./app start -c
 
 ```
 
