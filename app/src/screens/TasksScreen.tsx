@@ -5,7 +5,11 @@ import { useHistory } from '../hooks/useHistory';
 import { usePreferences } from '../hooks/usePreferences';
 import { Feather } from '@expo/vector-icons';
 
-export function TasksScreen() {
+interface TasksScreenProps {
+  onViewChange: (view: string) => void;
+}
+
+export function TasksScreen({ onViewChange }: TasksScreenProps) {
   const { tasks, toggleTask, completedCount } = useTasks();
   const { appendHistory } = useHistory();
   const { preferences } = usePreferences(); 
@@ -58,7 +62,6 @@ export function TasksScreen() {
                 {task.title}
               </Text>
               
-              {}
               {!isSimplificado && (
                 <Text style={[styles.cardText, isAltoContraste && styles.textAltoContraste]}>
                   {task.detail}
@@ -83,7 +86,6 @@ export function TasksScreen() {
         ))}
       </View>
 
-      {}
       {isLembretes && tasks.length > completedCount && (
         <View style={[styles.lembreteCard, isAmplo && styles.cardAmplo, isAltoContraste && styles.cardAltoContraste]}>
           <Text style={[styles.cardTitle, isAltoContraste && styles.textAltoContraste]}>Lembrete de Tarefa</Text>
@@ -92,12 +94,14 @@ export function TasksScreen() {
           </Text>
         </View>
       )}
-  <TouchableOpacity 
-    style={styles.fab} 
-    onPress={() => onViewChange('criar_tarefa')}
-  >
-    <Feather name="plus" size={32} color="#ffffff" />
-  </TouchableOpacity> 
+
+      {/* Botão FAB Funcional e Seguro agora */}
+      <TouchableOpacity 
+        style={styles.fab} 
+        onPress={() => onViewChange('criar_tarefa')}
+      >
+        <Feather name="plus" size={32} color="#ffffff" />
+      </TouchableOpacity> 
     </>
   );
 }
@@ -134,19 +138,19 @@ const styles = StyleSheet.create({
   smallButtonDone: { backgroundColor: '#d1fae5' },
   smallButtonText: { color: '#0f172a', fontWeight: '700' },
   fab: {
-  position: 'absolute',
-  bottom: 24,
-  right: 24,
-  backgroundColor: '#2563eb',
-  width: 64,
-  height: 64,
-  borderRadius: 32,
-  justifyContent: 'center',
-  alignItems: 'center',
-  elevation: 6, 
-  shadowColor: '#000', 
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.3,
-  shadowRadius: 4,
-},
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    backgroundColor: '#2563eb',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 6, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
 });

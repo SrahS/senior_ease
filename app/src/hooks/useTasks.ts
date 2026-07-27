@@ -14,7 +14,7 @@ export function useTasks() {
   const completedCount = useMemo(() => tasks.filter(t => t.completed).length, [tasks]);
   const totalCount = tasks.length;
 
-  const toggleTaskState = (id: number) => {
+  const toggleTask = (id: number) => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   };
 
@@ -28,5 +28,5 @@ export function useTasks() {
     setTasks(prev => [...prev, newTask]);
   };
 
-  return { tasks, completedCount, totalCount, toggleTaskState, addTask };
+  return { tasks, completedCount, totalCount, toggleTask, addTask };
 }
