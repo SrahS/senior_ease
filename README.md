@@ -36,8 +36,7 @@ senior_ease/
 ├── shared/                  # Domínio e Regras de Negócio Agnósticas (Clean Architecture)
 │   ├── adapters/            # Adaptadores de armazenamento (AsyncStorage para Mobile, LocalStorage para Web)
 │   ├── domain/              # Entidades, Value Objects e Casos de Uso (Use Cases) globais
-│   └── preferences.ts       # Tipos, chaves de armazenamento e configurações padrão de acessibilidade
-│
+│   └── firebase/            # Configuração e inicialização do Firebase (App, Auth, DB)│
 ├── web/                     # Aplicação Frontend Web (React + Vite)
 │   ├── src/
 │   │   ├── contexts/        # Gerenciamento de estado global (PreferencesContext)
@@ -104,6 +103,8 @@ pnpm --filter ./app start -c
 Para rodar a suíte de testes automatizados e validar a integridade dos componentes e fluxos:
 
 ```bash
+
+cd web
 pnpm test
 
 ```

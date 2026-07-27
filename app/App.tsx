@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../shared/firebase/config';
 
 import { PreferencesProvider, usePreferences } from './src/hooks/usePreferences';
 
@@ -18,6 +20,18 @@ function MainApp() {
   const [activeView, setActiveView] = useState<ActiveView>('painel');
   const { preferences } = usePreferences();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+      
+      if (!user) {
+        setActiveView('painel');
+      }
+    });
+    
+    return () => unsubscribe();
+  }, []);
 
   const renderScreen = () => {
     switch (activeView) {
@@ -41,11 +55,8 @@ function MainApp() {
   return (
     <SafeAreaView style={[styles.safeArea, preferences.warmMode && styles.warmSafeArea]}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-
         <NavigationBar activeView={activeView} onViewChange={setActiveView} />
-
         {renderScreen()}
-
       </ScrollView>
     </SafeAreaView>
   );

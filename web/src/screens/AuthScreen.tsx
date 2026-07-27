@@ -106,7 +106,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
             onClick={handleAuth}
             disabled={loading}
           >
-            {loading ? 'Aguarde...' : (isLogin ? 'Entrar no aplicativo' : 'Criar minha conta')}
+            {loading ? 'Aguarde...' : (isLogin ? 'Entrar' : 'Criar conta')}
           </button>
 
           <button

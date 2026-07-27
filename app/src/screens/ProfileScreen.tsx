@@ -70,7 +70,6 @@ export function ProfileScreen() {
           placeholderTextColor={isAltoContraste ? '#475569' : '#94a3b8'}
         />
 
-        { }
         <Text style={[styles.inputLabel, isAltoContraste && styles.textAltoContraste, { marginTop: 24, marginBottom: 8 }]}>
           Modo de navegação
         </Text>
@@ -139,17 +138,6 @@ export function ProfileScreen() {
       </TouchableOpacity>
 
       {savedMessage ? <Text style={[styles.info, isAltoContraste && styles.textAltoContraste]}>{savedMessage}</Text> : null}
-      <TouchableOpacity
-        style={[
-          styles.button,
-          isAmplo && styles.buttonAmplo,
-          isAltoContraste && styles.buttonAltoContraste,
-          isFeedback && styles.buttonFeedback
-        ]}
-        onPress={handleProfileSave}
-      >
-        <Text style={[styles.buttonText, isAltoContraste && styles.textAltoContrasteBotao]}>Salvar perfil</Text>
-      </TouchableOpacity>
 
       <TouchableOpacity
         style={[
@@ -198,7 +186,6 @@ const styles = StyleSheet.create({
   inputAmplo: { padding: 18, fontSize: 16 },
   inputAltoContraste: { borderColor: '#000000', borderWidth: 2, color: '#000000', fontWeight: '700' },
   inputFeedback: { borderColor: '#1d4ed8', borderWidth: 2 },
-
 
   chipRow: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
   chip: { backgroundColor: '#e2e8f0', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 999, minHeight: 44, justifyContent: 'center' },

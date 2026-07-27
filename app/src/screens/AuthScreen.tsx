@@ -94,7 +94,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>{isLogin ? 'Entrar no aplicativo' : 'Criar minha conta'}</Text>
+            <Text style={styles.buttonText}>{isLogin ? 'Entrar' : 'Criar conta'}</Text>
           )}
         </TouchableOpacity>
 
