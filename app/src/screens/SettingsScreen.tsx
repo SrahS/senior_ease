@@ -127,6 +127,20 @@ export function SettingsScreen() {
         </View>
 
         <View style={[styles.row, isAmplo && styles.rowAmplo, isFeedback && styles.rowFeedback]}>
+          <Text style={[styles.label, isAltoContraste && styles.textAltoContraste]}>Confirmações extras</Text>
+          <View style={styles.switchContainer}>
+            {isFeedback && <Text style={styles.feedbackText}>{preferences.extraConfirmation ? 'LIGADO' : 'DESLIGADO'}</Text>}
+            <Switch
+              value={preferences.extraConfirmation}
+              onValueChange={(value) => updatePreference('extraConfirmation', value)}
+              trackColor={isAltoContraste ? { false: '#767577', true: '#000000' } : undefined}
+              accessibilityLabel="Confirmações extras"
+              accessibilityHint="Pede confirmação antes de concluir tarefas importantes."
+            />
+          </View>
+        </View>
+
+        <View style={[styles.row, isAmplo && styles.rowAmplo, isFeedback && styles.rowFeedback]}>
           <Text style={[styles.label, isAltoContraste && styles.textAltoContraste]}>Modo acolhedor</Text>
           <View style={styles.switchContainer}>
             {isFeedback && <Text style={styles.feedbackText}>{preferences.warmMode ? 'LIGADO' : 'DESLIGADO'}</Text>}

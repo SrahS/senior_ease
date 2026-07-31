@@ -7,6 +7,8 @@ interface ConfirmationModalProps {
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmLabel?: string;
+  isConfirming?: boolean;
 }
 
 export function ConfirmationModal({ 
@@ -14,7 +16,9 @@ export function ConfirmationModal({
   title = "Confirmar ação", 
   message, 
   onConfirm, 
-  onCancel 
+  onCancel,
+  confirmLabel = 'Sim, confirmar',
+  isConfirming = false,
 }: ConfirmationModalProps) {
   return (
     <Modal
@@ -24,17 +28,29 @@ export function ConfirmationModal({
       onRequestClose={onCancel}
     >
       {}
-      <View style={styles.overlay}>
-        <View style={styles.modalCard}>
+      <View style={styles.overlay} accessibilityViewIsModal>
+        <View style={styles.modalCard} accessibilityRole="alert">
           <Text style={styles.cardTitle}>{title}</Text>
           <Text style={styles.cardText}>{message}</Text>
           
           <View style={styles.actions}>
-            <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={onConfirm}>
-              <Text style={styles.buttonText}>Sim, confirmar</Text>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={confirmLabel}
+              disabled={isConfirming}
+              style={[styles.button, styles.confirmButton, isConfirming && styles.disabledButton]}
+              onPress={onConfirm}
+            >
+              <Text style={styles.buttonText}>{isConfirming ? 'Excluindo...' : confirmLabel}</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onCancel}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Cancelar"
+              disabled={isConfirming}
+              style={[styles.button, styles.cancelButton, isConfirming && styles.disabledButton]}
+              onPress={onCancel}
+            >
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
@@ -70,6 +86,7 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: 12, flexWrap: 'wrap' },
   button: { flex: 1, paddingVertical: 12, borderRadius: 999, alignItems: 'center' },
   confirmButton: { backgroundColor: '#16a34a' },
+  disabledButton: { opacity: 0.55 },
   buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
   cancelButton: { backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fca5a5' },
   cancelText: { color: '#ef4444', fontWeight: '700', fontSize: 16 },

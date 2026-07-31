@@ -111,6 +111,19 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   padding: 12px; margin-top: 8px; 
 }
 .switch-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.importance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #fbbf24;
+  border-radius: 12px;
+  background: #fef3c7;
+}
+.importance-row strong { color: #0f172a; }
+.importance-row p { margin: 4px 0 0; color: #475569; font-size: 0.9rem; }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 
 
@@ -122,6 +135,55 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 .task-item.done { background: #dcfce7; border-color: #bbf7d0; }
 .task-item.done h3 { text-decoration: line-through; color: #166534; }
 .task-item p { margin: 4px 0 0; color: #475569; font-size: 0.95rem; }
+.task-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.delete-task-btn, .danger-btn {
+  border: none;
+  border-radius: 999px;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 700;
+}
+.delete-task-btn:disabled, .danger-btn:disabled, .primary-btn:disabled, .secondary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.important-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 8px;
+  border: 1px solid #fbbf24;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.task-status, .task-error { margin: 16px 0 0; font-weight: 700; }
+.task-error { color: #991b1b; }
+
+.confirmation-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.55);
+}
+.confirmation-modal {
+  width: min(100%, 460px);
+  border: 1px solid #fbbf24;
+  border-radius: 20px;
+  padding: 24px;
+  background: #fef3c7;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
+}
+.confirmation-modal h2 { margin: 0; color: #0f172a; font-size: 1.25rem; }
+.confirmation-modal p { margin: 8px 0 20px; color: #475569; }
+.confirmation-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
 
 .stats-row { display: flex; gap: 10px; margin-top: 16px; }
@@ -141,6 +203,10 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
   background: #ffffff;
   border-color: #ffedd5;
 }
+.warm-mode .confirmation-modal {
+  background: #fff7ed;
+  border-color: #fdba74;
+}
 
 
 /* =========================================
@@ -156,7 +222,8 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 .contrast-high .tab-bar,
 .contrast-high .task-item,
 .contrast-high .text-input,
-.contrast-high .stat-card {
+.contrast-high .stat-card,
+.contrast-high .importance-row {
   background: #ffffff;
   border: 2px solid #000000; 
   box-shadow: none; 
@@ -197,6 +264,27 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 .contrast-high .task-item.done {
   background: #e5e7eb; 
   border: 2px solid #000000;
+}
+.contrast-high .delete-task-btn,
+.contrast-high .danger-btn {
+  background: #000000;
+  border: 2px solid #000000;
+  color: #ffffff !important;
+}
+.contrast-high .important-badge,
+.contrast-high .confirmation-modal {
+  border: 2px solid #000000;
+  background: #ffffff;
+  color: #000000;
+}
+.contrast-high .importance-row p,
+.contrast-high .importance-row strong {
+  color: #000000 !important;
+}
+.contrast-high .confirmation-modal h2,
+.contrast-high .confirmation-modal p,
+.contrast-high .task-error {
+  color: #000000 !important;
 }
 
 
@@ -329,4 +417,10 @@ button, .chip, .tab-button, .task-item, .panel, .hero-card, .stat-card, .text-in
 }
 .contrast-high .switch-toggle input:checked + .switch-slider:before {
   background-color: #ffffff;
+}
+
+@media (max-width: 540px) {
+  .task-item { align-items: flex-start; flex-direction: column; }
+  .task-actions { width: 100%; }
+  .task-actions button { flex: 1; }
 }

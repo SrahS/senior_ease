@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useTasks } from '../hooks/useTasks';
 import { usePreferences } from '../hooks/usePreferences';
 import { useOnboarding } from '../hooks/useOnboarding';
 
-export function DashboardScreen() {
-  const { completedCount } = useTasks();
+interface DashboardScreenProps {
+  completedCount: number;
+}
+
+export function DashboardScreen({ completedCount }: DashboardScreenProps) {
   const { preferences } = usePreferences();
   const { showOnboarding } = useOnboarding(() => {}); 
 
