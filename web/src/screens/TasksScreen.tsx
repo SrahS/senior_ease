@@ -1,31 +1,79 @@
 import { useState } from 'react';
 import { usePreferences } from '../contexts/PreferencesContext';
-import { Task } from '../hooks/useTasks';
+import type { Task } from '../../../shared/domain/task';
+import { ConfirmationModal } from '../components/ConfirmationModal';
 
 interface TasksScreenProps {
   tasks: Task[];
   completedCount: number;
   totalCount: number;
-  onToggle: (id: number) => void;
+  isLoading: boolean;
+  error: string | null;
+  onToggle: (taskId: string) => Promise<void>;
+  onDeleteTask: (taskId: string) => Promise<void>;
   onNavigate: (tab: 'criar_tarefa') => void;
 }
 
-export function TasksScreen({ tasks, completedCount, totalCount, onToggle, onNavigate }: TasksScreenProps) {
+export function TasksScreen({
+  tasks,
+  completedCount,
+  totalCount,
+  isLoading,
+  error,
+  onToggle,
+  onDeleteTask,
+  onNavigate,
+}: TasksScreenProps) {
   const { preferences } = usePreferences();
-  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [taskAwaitingCompletion, setTaskAwaitingCompletion] = useState<Task | null>(null);
+  const [taskAwaitingDeletion, setTaskAwaitingDeletion] = useState<Task | null>(null);
+  const [isTogglingTask, setIsTogglingTask] = useState(false);
+  const [isDeletingTask, setIsDeletingTask] = useState(false);
 
   const handleTaskClick = (task: Task) => {
-    if (task.title.includes('água') && preferences.extraConfirmation && !task.completed) {
-      setConfirmId(task.id);
-    } else {
-      onToggle(task.id);
+    if (task.important && preferences.extraConfirmation && !task.completed) {
+      setTaskAwaitingCompletion(task);
+      return;
+    }
+
+    void completeToggle(task);
+  };
+
+  const completeToggle = async (task: Task) => {
+    setIsTogglingTask(true);
+    try {
+      await onToggle(task.id);
+    } catch {
+      // The shared task state exposes persistence errors in the task list.
+    } finally {
+      setIsTogglingTask(false);
     }
   };
 
-  const confirmCriticalAction = () => {
-    if (confirmId !== null) {
-      onToggle(confirmId);
-      setConfirmId(null);
+  const confirmTaskCompletion = async () => {
+    if (!taskAwaitingCompletion || isTogglingTask) {
+      return;
+    }
+
+    const task = taskAwaitingCompletion;
+    setTaskAwaitingCompletion(null);
+    await completeToggle(task);
+  };
+
+  const confirmTaskDeletion = async () => {
+    if (!taskAwaitingDeletion || isDeletingTask) {
+      return;
+    }
+
+    const task = taskAwaitingDeletion;
+    setIsDeletingTask(true);
+    try {
+      await onDeleteTask(task.id);
+      setTaskAwaitingDeletion(null);
+    } catch {
+      // The shared task state exposes persistence errors in the task list.
+    } finally {
+      setIsDeletingTask(false);
     }
   };
 
@@ -47,27 +95,38 @@ export function TasksScreen({ tasks, completedCount, totalCount, onToggle, onNav
         </div>
       </div>
 
-      {confirmId && (
-        <section className="panel confirmation-card" style={{backgroundColor: '#fef3c7', borderColor: '#fbbf24', marginBottom: '2rem'}}>
-          <h2>Confirmar ação</h2>
-          <p>Deseja realmente marcar esta tarefa importante como concluída?</p>
-          <div className="hero-actions">
-            <button className="primary-btn" style={{backgroundColor: '#16a34a'}} onClick={confirmCriticalAction}>Sim, confirmar</button>
-            <button className="secondary-btn" onClick={() => setConfirmId(null)}>Cancelar</button>
-          </div>
-        </section>
-      )}
+      {isLoading && <p className="task-status" role="status">Carregando tarefas...</p>}
+      {error && <p className="task-error" role="alert">{error}</p>}
 
       <ul className="task-list">
         {tasks.map(task => (
           <li key={task.id} className={`task-item ${task.completed ? 'done' : ''} ${preferences.visualFeedback ? 'feedback-active' : ''}`}>
             <div>
               <h3>{task.title}</h3>
+              {task.important && <span className="important-badge">Importante</span>}
               {!preferences.simplifiedMode && <p>{task.detail}</p>}
             </div>
-            <button className="secondary-btn" onClick={() => handleTaskClick(task)}>
-              {task.completed ? 'Reabrir' : 'Concluir'}
-            </button>
+            <div className="task-actions">
+              <button
+                className="secondary-btn"
+                type="button"
+                aria-label={`${task.completed ? 'Reabrir' : 'Concluir'} tarefa ${task.title}`}
+                disabled={isTogglingTask || isDeletingTask}
+                onClick={() => handleTaskClick(task)}
+              >
+                {task.completed ? 'Reabrir' : 'Concluir'}
+              </button>
+              <button
+                className="delete-task-btn"
+                type="button"
+                aria-label={`Excluir tarefa ${task.title}`}
+                aria-haspopup="dialog"
+                disabled={isDeletingTask}
+                onClick={() => setTaskAwaitingDeletion(task)}
+              >
+                Excluir
+              </button>
+            </div>
           </li>
         ))}
       </ul>
@@ -96,6 +155,24 @@ export function TasksScreen({ tasks, completedCount, totalCount, onToggle, onNav
       >
         +
       </button>
+      <ConfirmationModal
+        visible={taskAwaitingCompletion !== null}
+        title="Concluir tarefa importante?"
+        message={`Deseja marcar "${taskAwaitingCompletion?.title ?? ''}" como concluída?`}
+        isConfirming={isTogglingTask}
+        onConfirm={confirmTaskCompletion}
+        onCancel={() => !isTogglingTask && setTaskAwaitingCompletion(null)}
+      />
+      <ConfirmationModal
+        visible={taskAwaitingDeletion !== null}
+        title="Excluir tarefa?"
+        message={`Deseja excluir "${taskAwaitingDeletion?.title ?? ''}"? Esta ação removerá a tarefa da sua lista.`}
+        confirmLabel="Sim, excluir"
+        confirmVariant="danger"
+        isConfirming={isDeletingTask}
+        onConfirm={confirmTaskDeletion}
+        onCancel={() => !isDeletingTask && setTaskAwaitingDeletion(null)}
+      />
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PreferencesProvider, usePreferences } from './contexts/PreferencesContext';
 import { useTasks } from './hooks/useTasks';
 
@@ -14,20 +14,39 @@ import { CreateTaskScreen } from './screens/CreateTaskScreen';
 import { AuthScreen } from './screens/AuthScreen';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../shared/firebase/config';
+import { FirebaseTaskAdapter } from '../../shared/adapters/firebaseTaskAdapter';
 
 type ActiveTab = 'painel' | 'tarefas' | 'perfil' | 'configuracoes' | 'ajuda' | 'criar_tarefa';
 
 function MainApp() {
   const { preferences, updatePreference } = usePreferences();
-  const { tasks, completedCount, totalCount, toggleTaskState, addTask } = useTasks();
-
   const [activeTab, setActiveTab] = useState<ActiveTab>('painel');
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const taskRepository = useMemo(
+    () => (userId ? new FirebaseTaskAdapter() : null),
+    [userId],
+  );
+  const {
+    tasks,
+    completedCount,
+    totalCount,
+    isLoading: areTasksLoading,
+    error: tasksError,
+    createTask,
+    toggleTask,
+    deleteTask,
+  } = useTasks({ userId, repository: taskRepository });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
+      setUserId(user?.uid ?? null);
+
+      if (!user) {
+        setActiveTab('painel');
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -98,7 +117,10 @@ function MainApp() {
             tasks={tasks}
             completedCount={completedCount}
             totalCount={totalCount}
-            onToggle={toggleTaskState}
+            isLoading={areTasksLoading}
+            error={tasksError}
+            onToggle={toggleTask}
+            onDeleteTask={deleteTask}
             onNavigate={setActiveTab}
           />
         )}
@@ -106,7 +128,7 @@ function MainApp() {
         {activeTab === 'criar_tarefa' && (
           <CreateTaskScreen
             onBack={() => setActiveTab('tarefas')}
-            onSave={addTask}
+            onSave={createTask}
           />
         )}
 
