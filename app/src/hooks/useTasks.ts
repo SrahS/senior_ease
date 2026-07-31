@@ -69,7 +69,7 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
     };
   }, [userId, useCases]);
 
-  const createTask = useCallback(async (title: string, detail: string) => {
+  const createTask = useCallback(async (title: string, detail: string, important: boolean) => {
     if (!userId || !useCases) {
       const authenticationError = new Error('Usuário não autenticado.');
       setError(authenticationError.message);
@@ -78,7 +78,7 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
 
     try {
       setError(null);
-      const task = await useCases.create.execute(userId, { title, detail });
+      const task = await useCases.create.execute(userId, { title, detail, important });
       setTasks((currentTasks) => [task, ...currentTasks]);
       return task;
     } catch (createError) {

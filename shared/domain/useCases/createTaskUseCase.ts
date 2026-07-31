@@ -18,6 +18,7 @@ export class CreateTaskUseCase {
     return this.repository.create(userId, {
       title,
       detail: input.detail.trim(),
+      important: input.important,
     });
   }
 }

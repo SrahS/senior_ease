@@ -3,6 +3,7 @@ export interface Task {
   title: string;
   detail: string;
   completed: boolean;
+  important: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -10,4 +11,5 @@ export interface Task {
 export interface CreateTaskInput {
   title: string;
   detail: string;
+  important: boolean;
 }

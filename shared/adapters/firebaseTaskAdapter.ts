@@ -7,6 +7,7 @@ type FirestoreTask = {
   title: string;
   detail: string;
   completed: boolean;
+  important?: boolean;
   createdAt: unknown;
   updatedAt: unknown;
 };
@@ -34,6 +35,7 @@ function toTask(id: string, data: FirestoreTask): Task {
     title: data.title,
     detail: data.detail,
     completed: data.completed,
+    important: data.important ?? false,
     createdAt: toDate(data.createdAt),
     updatedAt: toDate(data.updatedAt),
   };
@@ -46,6 +48,7 @@ export class FirebaseTaskAdapter implements TaskRepository {
       title: input.title,
       detail: input.detail,
       completed: false,
+      important: input.important,
       createdAt: now,
       updatedAt: now,
     });
@@ -55,6 +58,7 @@ export class FirebaseTaskAdapter implements TaskRepository {
       title: input.title,
       detail: input.detail,
       completed: false,
+      important: input.important,
       createdAt: now,
       updatedAt: now,
     };

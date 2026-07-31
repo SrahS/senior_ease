@@ -4,6 +4,7 @@ import { useHistory } from '../hooks/useHistory';
 import { usePreferences } from '../hooks/usePreferences';
 import { Feather } from '@expo/vector-icons';
 import type { Task } from '../../../shared/domain/task';
+import { ConfirmationModal } from '../components/ConfirmationModal';
 
 interface TasksScreenProps {
   onViewChange: (view: 'criar_tarefa') => void;
@@ -25,6 +26,7 @@ export function TasksScreen({
   const { appendHistory } = useHistory();
   const { preferences } = usePreferences(); 
   const [isTogglingTask, setIsTogglingTask] = useState(false);
+  const [taskAwaitingConfirmation, setTaskAwaitingConfirmation] = useState<Task | null>(null);
 
   const isAmplo = preferences.spacing === 'amplo';
   const isAltoContraste = preferences.contrast === 'alto';
@@ -32,7 +34,7 @@ export function TasksScreen({
   const isFeedback = preferences.visualFeedback;
   const isLembretes = preferences.reminders;
 
-  const handleToggleTask = async (
+  const completeToggle = async (
     taskId: string,
     taskTitle: string,
     isCurrentlyCompleted: boolean,
@@ -48,6 +50,25 @@ export function TasksScreen({
     } finally {
       setIsTogglingTask(false);
     }
+  };
+
+  const handleToggleTask = async (task: Task) => {
+    if (task.important && !task.completed && preferences.extraConfirmation) {
+      setTaskAwaitingConfirmation(task);
+      return;
+    }
+
+    await completeToggle(task.id, task.title, task.completed);
+  };
+
+  const confirmTaskCompletion = async () => {
+    if (!taskAwaitingConfirmation) {
+      return;
+    }
+
+    const task = taskAwaitingConfirmation;
+    setTaskAwaitingConfirmation(null);
+    await completeToggle(task.id, task.title, task.completed);
   };
 
   return (
@@ -93,6 +114,17 @@ export function TasksScreen({
               ]}>
                 {task.title}
               </Text>
+              {task.important && (
+                <View
+                  accessibilityLabel="Tarefa importante"
+                  style={[styles.importantBadge, isAltoContraste && styles.importantBadgeAltoContraste]}
+                >
+                  <Feather name="alert-circle" size={16} color={isAltoContraste ? '#000000' : '#92400e'} />
+                  <Text style={[styles.importantBadgeText, isAltoContraste && styles.textAltoContraste]}>
+                    Importante
+                  </Text>
+                </View>
+              )}
               
               {!isSimplificado && (
                 <Text style={[styles.cardText, isAltoContraste && styles.textAltoContraste]}>
@@ -108,7 +140,7 @@ export function TasksScreen({
                 isAmplo && { paddingVertical: 12, paddingHorizontal: 16 },
                 isAltoContraste && { borderWidth: 2, borderColor: '#000000' }
               ]} 
-              onPress={() => handleToggleTask(task.id, task.title, task.completed)}
+              onPress={() => handleToggleTask(task)}
               disabled={isTogglingTask}
             >
               <Text style={[styles.smallButtonText, isAltoContraste && styles.textAltoContraste]}>
@@ -135,6 +167,13 @@ export function TasksScreen({
       >
         <Feather name="plus" size={32} color="#ffffff" />
       </TouchableOpacity> 
+      <ConfirmationModal
+        visible={taskAwaitingConfirmation !== null}
+        title="Concluir tarefa importante?"
+        message={`Deseja marcar "${taskAwaitingConfirmation?.title ?? ''}" como concluída?`}
+        onConfirm={confirmTaskCompletion}
+        onCancel={() => setTaskAwaitingConfirmation(null)}
+      />
     </>
   );
 }
@@ -162,6 +201,9 @@ const styles = StyleSheet.create({
   taskItemFeedback: { borderBottomWidth: 1, borderBottomColor: '#cbd5e1', paddingBottom: 16 },
   taskTextBlock: { flex: 1, paddingRight: 12 },
   taskTitle: { fontSize: 15, color: '#0f172a', fontWeight: '600' },
+  importantBadge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fef3c7', borderWidth: 1, borderColor: '#fbbf24', borderRadius: 999, paddingVertical: 4, paddingHorizontal: 8, marginTop: 8 },
+  importantBadgeAltoContraste: { backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 2 },
+  importantBadgeText: { color: '#92400e', fontSize: 13, fontWeight: '700' },
   
   taskDone: { backgroundColor: '#dcfce7', borderRadius: 16, padding: 12 },
   taskDoneAltoContraste: { backgroundColor: '#e5e7eb', borderWidth: 2, borderColor: '#000' },

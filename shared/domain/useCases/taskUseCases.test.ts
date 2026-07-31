@@ -24,6 +24,7 @@ class FakeTaskRepository implements TaskRepository {
       title: input.title,
       detail: input.detail,
       completed: false,
+      important: input.important,
       createdAt: now,
       updatedAt: now,
     };
@@ -49,18 +50,33 @@ describe('task use cases', () => {
     const task = await useCase.execute('user-a', {
       title: '  Tomar remédio  ',
       detail: '  Às 15h  ',
+      important: true,
     });
 
     expect(task.title).toBe('Tomar remédio');
     expect(task.detail).toBe('Às 15h');
+    expect(task.important).toBe(true);
     expect(repository.lastCreateUserId).toBe('user-a');
+  });
+
+  it('creates an unmarked task as not important', async () => {
+    const repository = new FakeTaskRepository();
+    const useCase = new CreateTaskUseCase(repository);
+
+    const task = await useCase.execute('user-a', {
+      title: 'Ler um livro',
+      detail: '',
+      important: false,
+    });
+
+    expect(task.important).toBe(false);
   });
 
   it('rejects an empty title without persisting a task', async () => {
     const repository = new FakeTaskRepository();
     const useCase = new CreateTaskUseCase(repository);
 
-    await expect(useCase.execute('user-a', { title: '   ', detail: '' }))
+    await expect(useCase.execute('user-a', { title: '   ', detail: '', important: false }))
       .rejects.toThrow('O título da tarefa é obrigatório.');
     expect(repository.lastCreateUserId).toBeNull();
   });
@@ -70,7 +86,7 @@ describe('task use cases', () => {
     repository.shouldFailToCreate = true;
     const useCase = new CreateTaskUseCase(repository);
 
-    await expect(useCase.execute('user-a', { title: 'Pagar conta', detail: '' }))
+    await expect(useCase.execute('user-a', { title: 'Pagar conta', detail: '', important: false }))
       .rejects.toThrow('Falha ao persistir.');
   });
 
@@ -91,8 +107,8 @@ describe('task use cases', () => {
     const repository = new FakeTaskRepository();
     const createTask = new CreateTaskUseCase(repository);
     const listTasks = new ListTasksUseCase(repository);
-    await createTask.execute('user-a', { title: 'Tarefa da Ana', detail: '' });
-    await createTask.execute('user-b', { title: 'Tarefa do Bruno', detail: '' });
+    await createTask.execute('user-a', { title: 'Tarefa da Ana', detail: '', important: false });
+    await createTask.execute('user-b', { title: 'Tarefa do Bruno', detail: '', important: false });
 
     await expect(listTasks.execute('user-a')).resolves.toMatchObject([
       { title: 'Tarefa da Ana' },

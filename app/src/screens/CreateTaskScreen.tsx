@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, Text, TextInput, TouchableOpacity, Switch, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 interface CreateTaskScreenProps {
   onBack: () => void;
-  onSave: (title: string, detail: string) => Promise<unknown>;
+  onSave: (title: string, detail: string, important: boolean) => Promise<unknown>;
 }
 
 export function CreateTaskScreen({ onBack, onSave }: CreateTaskScreenProps) {
   const [title, setTitle] = useState('');
   const [detail, setDetail] = useState('');
+  const [important, setImportant] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,9 +25,10 @@ export function CreateTaskScreen({ onBack, onSave }: CreateTaskScreenProps) {
     setError(null);
 
     try {
-      await onSave(normalizedTitle, detail);
+      await onSave(normalizedTitle, detail, important);
       setTitle('');
       setDetail('');
+      setImportant(false);
       onBack();
     } catch {
       setError('Não foi possível salvar a tarefa. Tente novamente.');
@@ -65,6 +67,21 @@ export function CreateTaskScreen({ onBack, onSave }: CreateTaskScreenProps) {
         editable={!isSaving}
       />
 
+      <View style={styles.importanceRow}>
+        <View style={styles.importanceText}>
+          <Text style={styles.importanceTitle}>Tarefa importante</Text>
+          <Text style={styles.importanceDescription}>Peça confirmação antes de concluir.</Text>
+        </View>
+        <Switch
+          value={important}
+          onValueChange={setImportant}
+          disabled={isSaving}
+          accessibilityLabel="Marcar como tarefa importante"
+          accessibilityHint="Exige confirmação antes de concluir quando as confirmações extras estão ativadas."
+          accessibilityState={{ checked: important, disabled: isSaving }}
+        />
+      </View>
+
       {error && (
         <Text accessibilityRole="alert" style={styles.errorText}>
           {error}
@@ -90,6 +107,10 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 20, fontWeight: '700', color: '#0f172a' },
   input: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 16, marginTop: 12, fontSize: 16 },
   textArea: { height: 100, textAlignVertical: 'top' },
+  importanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, padding: 16, borderRadius: 12, backgroundColor: '#fef3c7', borderWidth: 1, borderColor: '#fbbf24' },
+  importanceText: { flex: 1, paddingRight: 12 },
+  importanceTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
+  importanceDescription: { fontSize: 14, color: '#475569', marginTop: 4 },
   button: { marginTop: 24, backgroundColor: '#2563eb', paddingVertical: 16, borderRadius: 999, alignItems: 'center' },
   buttonDisabled: { opacity: 0.65 },
   buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
