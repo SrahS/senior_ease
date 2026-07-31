@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start --port 8082",
-    "build": "echo 'Expo build not configured in this workspace'"
+    "build": "echo 'Expo build not configured in this workspace'",
+    "test": "vitest run --root .. shared/domain/useCases/taskUseCases.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -17,5 +19,9 @@
     "react-native-safe-area-context": "~5.6.2",
     "vite": "8.1.5",
     "vitest": "4.1.10"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.17",
+    "typescript": "~5.9.3"
   }
 }
