@@ -20,7 +20,9 @@ interface TasksScreenProps {
   tasks: Task[];
   completedCount: number;
   isLoading: boolean;
+  isRefreshing: boolean;
   error: string | null;
+  onRefreshTasks: () => Promise<void>;
   onToggleTask: (taskId: string) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
 }
@@ -30,7 +32,9 @@ export function TasksScreen({
   tasks,
   completedCount,
   isLoading,
+  isRefreshing,
   error,
+  onRefreshTasks,
   onToggleTask,
   onDeleteTask,
 }: TasksScreenProps) {
@@ -116,6 +120,9 @@ export function TasksScreen({
         keyExtractor={(task) => task.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        refreshing={isRefreshing}
+        onRefresh={onRefreshTasks}
+        progressViewOffset={12}
         ListHeaderComponent={
           <View style={[styles.card, isAmplo && styles.cardAmplo, isAltoContraste && styles.cardAltoContraste]}>
             <View style={[styles.statsRow, isAmplo && { marginBottom: 24 }]}>

@@ -18,6 +18,7 @@ function messageFrom(error: unknown): string {
 export function useTasks({ userId, repository }: UseTasksOptions) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const useCases = useMemo(
@@ -40,6 +41,7 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
       setTasks([]);
       setError(null);
       setIsLoading(false);
+      setIsRefreshing(false);
       return () => {
         isCurrent = false;
       };
@@ -69,6 +71,26 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
     return () => {
       isCurrent = false;
     };
+  }, [userId, useCases]);
+
+  const refreshTasks = useCallback(async () => {
+    if (!userId || !useCases) {
+      const authenticationError = new Error('Usuário não autenticado.');
+      setError(authenticationError.message);
+      return;
+    }
+
+    setIsRefreshing(true);
+    setError(null);
+
+    try {
+      const loadedTasks = await useCases.list.execute(userId);
+      setTasks(loadedTasks);
+    } catch (refreshError) {
+      setError(messageFrom(refreshError));
+    } finally {
+      setIsRefreshing(false);
+    }
   }, [userId, useCases]);
 
   const createTask = useCallback(async (title: string, detail: string, important: boolean) => {
@@ -147,7 +169,9 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
     completedCount,
     totalCount: tasks.length,
     isLoading,
+    isRefreshing,
     error,
+    refreshTasks,
     createTask,
     toggleTask,
     deleteTask,

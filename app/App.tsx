@@ -33,7 +33,9 @@ function MainApp() {
     tasks,
     completedCount,
     isLoading: areTasksLoading,
+    isRefreshing: areTasksRefreshing,
     error: tasksError,
+    refreshTasks,
     createTask,
     toggleTask,
     deleteTask,
@@ -62,7 +64,9 @@ function MainApp() {
             tasks={tasks}
             completedCount={completedCount}
             isLoading={areTasksLoading}
+            isRefreshing={areTasksRefreshing}
             error={tasksError}
+            onRefreshTasks={refreshTasks}
             onToggleTask={toggleTask}
             onDeleteTask={deleteTask}
             onViewChange={setActiveView}
