@@ -1,11 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTasks } from '../hooks/useTasks';
 import { useHistory } from '../hooks/useHistory';
 import { usePreferences } from '../hooks/usePreferences';
+import type { Task } from '../../../shared/domain/task';
 
-export function TasksScreen() {
-  const { tasks, toggleTask, completedCount } = useTasks();
+interface TasksProps {
+  tasks: Task[];
+  completedCount: number;
+  onToggleTask: (taskId: string) => Promise<void>;
+}
+
+export function Tasks({ tasks, completedCount, onToggleTask }: TasksProps) {
   const { appendHistory } = useHistory();
   const { preferences } = usePreferences();
 
@@ -14,10 +19,18 @@ export function TasksScreen() {
   const isAltoContraste = preferences.contrast === 'alto';
   const isSimplificado = preferences.simplifiedMode;
 
-  const handleToggleTask = (taskId: number, taskTitle: string, isCurrentlyCompleted: boolean) => {
-    toggleTask(taskId);
-    const nextStatus = isCurrentlyCompleted ? 'reaberta' : 'concluída';
-    appendHistory('Tarefa atualizada', `A tarefa '${taskTitle}' foi ${nextStatus}.`);
+  const handleToggleTask = async (
+    taskId: string,
+    taskTitle: string,
+    isCurrentlyCompleted: boolean,
+  ) => {
+    try {
+      await onToggleTask(taskId);
+      const nextStatus = isCurrentlyCompleted ? 'reaberta' : 'concluída';
+      appendHistory('Tarefa atualizada', `A tarefa '${taskTitle}' foi ${nextStatus}.`);
+    } catch {
+      // The parent exposes persistence errors to the user.
+    }
   };
 
   return (

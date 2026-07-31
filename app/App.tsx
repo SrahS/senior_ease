@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -9,21 +9,38 @@ import { PreferencesProvider, usePreferences } from './src/hooks/usePreferences'
 import { NavigationBar } from './src/components/NavigationBar';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { TasksScreen } from './src/screens/TasksScreen';
+import { CreateTaskScreen } from './src/screens/CreateTaskScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { HelpScreen } from './src/screens/HelpScreen';
 import { AuthScreen } from './src/screens/AuthScreen';
+import { FirebaseTaskAdapter } from '../shared/adapters/firebaseTaskAdapter';
+import { useTasks } from './src/hooks/useTasks';
 
-export type ActiveView = 'painel' | 'tarefas' | 'perfil' | 'configuracoes' | 'ajuda';
+export type ActiveView = 'painel' | 'tarefas' | 'criar_tarefa' | 'perfil' | 'configuracoes' | 'ajuda';
 
 function MainApp() {
   const [activeView, setActiveView] = useState<ActiveView>('painel');
   const { preferences } = usePreferences();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const taskRepository = useMemo(
+    () => (userId ? new FirebaseTaskAdapter() : null),
+    [userId],
+  );
+  const {
+    tasks,
+    completedCount,
+    isLoading: areTasksLoading,
+    error: tasksError,
+    createTask,
+    toggleTask,
+  } = useTasks({ userId, repository: taskRepository });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
+      setUserId(user?.uid ?? null);
       
       if (!user) {
         setActiveView('painel');
@@ -36,9 +53,25 @@ function MainApp() {
   const renderScreen = () => {
     switch (activeView) {
       case 'painel':
-        return <DashboardScreen />;
+        return <DashboardScreen completedCount={completedCount} />;
       case 'tarefas':
-        return <TasksScreen />;
+        return (
+          <TasksScreen
+            tasks={tasks}
+            completedCount={completedCount}
+            isLoading={areTasksLoading}
+            error={tasksError}
+            onToggleTask={toggleTask}
+            onViewChange={setActiveView}
+          />
+        );
+      case 'criar_tarefa':
+        return (
+          <CreateTaskScreen
+            onBack={() => setActiveView('tarefas')}
+            onSave={createTask}
+          />
+        );
       case 'perfil':
         return <ProfileScreen />;
       case 'configuracoes':
@@ -55,7 +88,10 @@ function MainApp() {
   return (
     <SafeAreaView style={[styles.safeArea, preferences.warmMode && styles.warmSafeArea]}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <NavigationBar activeView={activeView} onViewChange={setActiveView} />
+        <NavigationBar
+          activeView={activeView === 'criar_tarefa' ? 'tarefas' : activeView}
+          onViewChange={(view) => setActiveView(view)}
+        />
         {renderScreen()}
       </ScrollView>
     </SafeAreaView>

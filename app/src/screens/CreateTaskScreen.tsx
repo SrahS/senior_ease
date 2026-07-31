@@ -1,23 +1,44 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
+interface CreateTaskScreenProps {
+  onBack: () => void;
+  onSave: (title: string, detail: string) => Promise<unknown>;
+}
 
-export function CreateTaskScreen({ onBack }: { onBack: () => void }) {
+export function CreateTaskScreen({ onBack, onSave }: CreateTaskScreenProps) {
   const [title, setTitle] = useState('');
   const [detail, setDetail] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  const handleSave = async () => {
+    const normalizedTitle = title.trim();
+    if (!normalizedTitle) {
+      setError('Informe o que você precisa fazer.');
+      return;
+    }
 
-  const handleSave = () => {
-    if (!title) return;
+    setIsSaving(true);
+    setError(null);
 
-    onBack();
+    try {
+      await onSave(normalizedTitle, detail);
+      setTitle('');
+      setDetail('');
+      onBack();
+    } catch {
+      setError('Não foi possível salvar a tarefa. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
+        <TouchableOpacity onPress={onBack} style={styles.backButton} disabled={isSaving}>
           <Feather name="arrow-left" size={24} color="#0f172a" />
         </TouchableOpacity>
         <Text style={styles.cardTitle}>Nova Tarefa</Text>
@@ -27,7 +48,11 @@ export function CreateTaskScreen({ onBack }: { onBack: () => void }) {
         style={styles.input} 
         placeholder="O que você precisa fazer?" 
         value={title}
-        onChangeText={setTitle}
+        onChangeText={(value) => {
+          setTitle(value);
+          if (error) setError(null);
+        }}
+        editable={!isSaving}
       />
       
       <TextInput 
@@ -37,10 +62,22 @@ export function CreateTaskScreen({ onBack }: { onBack: () => void }) {
         numberOfLines={4}
         value={detail}
         onChangeText={setDetail}
+        editable={!isSaving}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Salvar Tarefa</Text>
+      {error && (
+        <Text accessibilityRole="alert" style={styles.errorText}>
+          {error}
+        </Text>
+      )}
+
+      <TouchableOpacity
+        style={[styles.button, isSaving && styles.buttonDisabled]}
+        onPress={handleSave}
+        disabled={isSaving}
+        accessibilityState={{ disabled: isSaving, busy: isSaving }}
+      >
+        {isSaving ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.buttonText}>Salvar Tarefa</Text>}
       </TouchableOpacity>
     </View>
   );
@@ -54,5 +91,7 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 16, marginTop: 12, fontSize: 16 },
   textArea: { height: 100, textAlignVertical: 'top' },
   button: { marginTop: 24, backgroundColor: '#2563eb', paddingVertical: 16, borderRadius: 999, alignItems: 'center' },
+  buttonDisabled: { opacity: 0.65 },
   buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
+  errorText: { color: '#991b1b', fontWeight: '700', marginTop: 16 },
 });

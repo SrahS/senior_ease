@@ -1,18 +1,30 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTasks } from '../hooks/useTasks';
+import React, { useState } from 'react';
+import { ActivityIndicator, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useHistory } from '../hooks/useHistory';
 import { usePreferences } from '../hooks/usePreferences';
 import { Feather } from '@expo/vector-icons';
+import type { Task } from '../../../shared/domain/task';
 
 interface TasksScreenProps {
-  onViewChange: (view: string) => void;
+  onViewChange: (view: 'criar_tarefa') => void;
+  tasks: Task[];
+  completedCount: number;
+  isLoading: boolean;
+  error: string | null;
+  onToggleTask: (taskId: string) => Promise<void>;
 }
 
-export function TasksScreen({ onViewChange }: TasksScreenProps) {
-  const { tasks, toggleTask, completedCount } = useTasks();
+export function TasksScreen({
+  onViewChange,
+  tasks,
+  completedCount,
+  isLoading,
+  error,
+  onToggleTask,
+}: TasksScreenProps) {
   const { appendHistory } = useHistory();
   const { preferences } = usePreferences(); 
+  const [isTogglingTask, setIsTogglingTask] = useState(false);
 
   const isAmplo = preferences.spacing === 'amplo';
   const isAltoContraste = preferences.contrast === 'alto';
@@ -20,10 +32,22 @@ export function TasksScreen({ onViewChange }: TasksScreenProps) {
   const isFeedback = preferences.visualFeedback;
   const isLembretes = preferences.reminders;
 
-  const handleToggleTask = (taskId: number, taskTitle: string, isCurrentlyCompleted: boolean) => {
-    toggleTask(taskId);
-    const nextStatus = isCurrentlyCompleted ? 'reaberta' : 'concluída';
-    appendHistory('Tarefa atualizada', `A tarefa '${taskTitle}' foi ${nextStatus}.`);
+  const handleToggleTask = async (
+    taskId: string,
+    taskTitle: string,
+    isCurrentlyCompleted: boolean,
+  ) => {
+    setIsTogglingTask(true);
+
+    try {
+      await onToggleTask(taskId);
+      const nextStatus = isCurrentlyCompleted ? 'reaberta' : 'concluída';
+      appendHistory('Tarefa atualizada', `A tarefa '${taskTitle}' foi ${nextStatus}.`);
+    } catch {
+      // The persistence error is exposed by the shared task state.
+    } finally {
+      setIsTogglingTask(false);
+    }
   };
 
   return (
@@ -43,6 +67,14 @@ export function TasksScreen({ onViewChange }: TasksScreenProps) {
             <Text style={[styles.statLabel, isAltoContraste && styles.textAltoContraste]}>Total</Text>
           </View>
         </View>
+
+        {isLoading && <ActivityIndicator size="large" color="#2563eb" />}
+
+        {error && (
+          <Text accessibilityRole="alert" style={styles.errorText}>
+            {error}
+          </Text>
+        )}
 
         {tasks.map(task => (
           <View key={task.id} style={[
@@ -77,6 +109,7 @@ export function TasksScreen({ onViewChange }: TasksScreenProps) {
                 isAltoContraste && { borderWidth: 2, borderColor: '#000000' }
               ]} 
               onPress={() => handleToggleTask(task.id, task.title, task.completed)}
+              disabled={isTogglingTask}
             >
               <Text style={[styles.smallButtonText, isAltoContraste && styles.textAltoContraste]}>
                 {task.completed ? 'Reabrir' : 'Concluir'}
@@ -116,6 +149,7 @@ const styles = StyleSheet.create({
   
   cardText: { fontSize: 15, color: '#475569', marginTop: 6 },
   cardTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+  errorText: { color: '#991b1b', fontWeight: '700', marginBottom: 12 },
   
   statsRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   statCard: { flex: 1, backgroundColor: '#f8fafc', borderRadius: 16, padding: 12, alignItems: 'center' },

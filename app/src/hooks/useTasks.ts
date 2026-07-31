@@ -1,32 +1,135 @@
-import { useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { TaskRepository } from '../../../shared/domain/repositories/taskRepository';
+import type { Task } from '../../../shared/domain/task';
+import { CreateTaskUseCase } from '../../../shared/domain/useCases/createTaskUseCase';
+import { ListTasksUseCase } from '../../../shared/domain/useCases/listTasksUseCase';
+import { SetTaskCompletionUseCase } from '../../../shared/domain/useCases/setTaskCompletionUseCase';
 
-export type Task = { id: number; title: string; detail: string; completed: boolean; };
+type UseTasksOptions = {
+  userId: string | null;
+  repository: TaskRepository | null;
+};
 
-const starterTasks: Task[] = [
-  { id: 1, title: 'Ler e-mail da faculdade', detail: 'Abrir confirmação e responder', completed: false },
-  { id: 2, title: 'Pagar conta da água', detail: 'Confirmar valor antes de pagar', completed: true },
-  { id: 3, title: 'Entrar no encontro virtual', detail: 'Abrir link e entrar 10 minutos antes', completed: false },
-];
+function messageFrom(error: unknown): string {
+  return error instanceof Error ? error.message : 'Não foi possível atualizar as tarefas.';
+}
 
-export function useTasks() {
-  const [tasks, setTasks] = useState<Task[]>(starterTasks);
+export function useTasks({ userId, repository }: UseTasksOptions) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const completedCount = useMemo(() => tasks.filter(t => t.completed).length, [tasks]);
-  const totalCount = tasks.length;
+  const useCases = useMemo(
+    () =>
+      repository
+        ? {
+            create: new CreateTaskUseCase(repository),
+            list: new ListTasksUseCase(repository),
+            setCompletion: new SetTaskCompletionUseCase(repository),
+          }
+        : null,
+    [repository],
+  );
 
-  const toggleTask = (id: number) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-  };
+  useEffect(() => {
+    let isCurrent = true;
 
-  const addTask = (title: string, detail: string) => {
-    const newTask: Task = {
-      id: Date.now(),
-      title,
-      detail,
-      completed: false,
+    if (!userId || !useCases) {
+      setTasks([]);
+      setError(null);
+      setIsLoading(false);
+      return () => {
+        isCurrent = false;
+      };
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    useCases.list.execute(userId)
+      .then((loadedTasks) => {
+        if (isCurrent) {
+          setTasks(loadedTasks);
+        }
+      })
+      .catch((loadError: unknown) => {
+        if (isCurrent) {
+          setError(messageFrom(loadError));
+          setTasks([]);
+        }
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
     };
-    setTasks(prev => [...prev, newTask]);
-  };
+  }, [userId, useCases]);
 
-  return { tasks, completedCount, totalCount, toggleTask, addTask };
+  const createTask = useCallback(async (title: string, detail: string) => {
+    if (!userId || !useCases) {
+      const authenticationError = new Error('Usuário não autenticado.');
+      setError(authenticationError.message);
+      throw authenticationError;
+    }
+
+    try {
+      setError(null);
+      const task = await useCases.create.execute(userId, { title, detail });
+      setTasks((currentTasks) => [task, ...currentTasks]);
+      return task;
+    } catch (createError) {
+      setError(messageFrom(createError));
+      throw createError;
+    }
+  }, [userId, useCases]);
+
+  const toggleTask = useCallback(async (taskId: string) => {
+    if (!userId || !useCases) {
+      const authenticationError = new Error('Usuário não autenticado.');
+      setError(authenticationError.message);
+      throw authenticationError;
+    }
+
+    const task = tasks.find((currentTask) => currentTask.id === taskId);
+    if (!task) {
+      const missingTaskError = new Error('Tarefa não encontrada.');
+      setError(missingTaskError.message);
+      throw missingTaskError;
+    }
+
+    try {
+      setError(null);
+      const completed = !task.completed;
+      await useCases.setCompletion.execute(userId, taskId, completed);
+      setTasks((currentTasks) =>
+        currentTasks.map((currentTask) =>
+          currentTask.id === taskId
+            ? { ...currentTask, completed, updatedAt: new Date() }
+            : currentTask,
+        ),
+      );
+    } catch (toggleError) {
+      setError(messageFrom(toggleError));
+      throw toggleError;
+    }
+  }, [tasks, userId, useCases]);
+
+  const completedCount = useMemo(
+    () => tasks.filter((task) => task.completed).length,
+    [tasks],
+  );
+
+  return {
+    tasks,
+    completedCount,
+    totalCount: tasks.length,
+    isLoading,
+    error,
+    createTask,
+    toggleTask,
+  };
 }
