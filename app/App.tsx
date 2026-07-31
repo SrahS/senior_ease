@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../shared/firebase/config';
 
@@ -35,6 +36,7 @@ function MainApp() {
     error: tasksError,
     createTask,
     toggleTask,
+    deleteTask,
   } = useTasks({ userId, repository: taskRepository });
 
   useEffect(() => {
@@ -62,6 +64,7 @@ function MainApp() {
             isLoading={areTasksLoading}
             error={tasksError}
             onToggleTask={toggleTask}
+            onDeleteTask={deleteTask}
             onViewChange={setActiveView}
           />
         );
@@ -87,27 +90,37 @@ function MainApp() {
 
   return (
     <SafeAreaView style={[styles.safeArea, preferences.warmMode && styles.warmSafeArea]}>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.navigationContainer}>
         <NavigationBar
           activeView={activeView === 'criar_tarefa' ? 'tarefas' : activeView}
           onViewChange={(view) => setActiveView(view)}
         />
-        {renderScreen()}
-      </ScrollView>
+      </View>
+      {activeView === 'tarefas' ? (
+        renderScreen()
+      ) : (
+        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+          {renderScreen()}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
 
 export default function App() {
   return (
-    <PreferencesProvider>
-      <MainApp />
-    </PreferencesProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <PreferencesProvider>
+        <MainApp />
+      </PreferencesProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1 },
   safeArea: { flex: 1, backgroundColor: '#f2f7ff' },
   warmSafeArea: { backgroundColor: '#fff7ed' },
-  container: { padding: 24, paddingBottom: 48 },
+  navigationContainer: { paddingHorizontal: 24, paddingTop: 24 },
+  container: { paddingHorizontal: 24, paddingBottom: 48 },
 });

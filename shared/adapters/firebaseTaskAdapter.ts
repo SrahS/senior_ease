@@ -10,6 +10,7 @@ type FirestoreTask = {
   important?: boolean;
   createdAt: unknown;
   updatedAt: unknown;
+  deletedAt?: unknown | null;
 };
 
 function toDate(value: unknown): Date {
@@ -38,6 +39,7 @@ function toTask(id: string, data: FirestoreTask): Task {
     important: data.important ?? false,
     createdAt: toDate(data.createdAt),
     updatedAt: toDate(data.updatedAt),
+    deletedAt: data.deletedAt == null ? null : toDate(data.deletedAt),
   };
 }
 
@@ -51,6 +53,7 @@ export class FirebaseTaskAdapter implements TaskRepository {
       important: input.important,
       createdAt: now,
       updatedAt: now,
+      deletedAt: null,
     });
 
     return {
@@ -61,6 +64,7 @@ export class FirebaseTaskAdapter implements TaskRepository {
       important: input.important,
       createdAt: now,
       updatedAt: now,
+      deletedAt: null,
     };
   }
 
@@ -71,15 +75,23 @@ export class FirebaseTaskAdapter implements TaskRepository {
     );
     const snapshot = await getDocs(tasksQuery);
 
-    return snapshot.docs.map((taskDocument) =>
-      toTask(taskDocument.id, taskDocument.data() as FirestoreTask),
-    );
+    return snapshot.docs
+      .map((taskDocument) => toTask(taskDocument.id, taskDocument.data() as FirestoreTask))
+      .filter((task) => task.deletedAt === null);
   }
 
   async setCompleted(userId: string, taskId: string, completed: boolean): Promise<void> {
     await updateDoc(doc(db, 'users', userId, 'tasks', taskId), {
       completed,
       updatedAt: new Date(),
+    });
+  }
+
+  async softDelete(userId: string, taskId: string): Promise<void> {
+    const now = new Date();
+    await updateDoc(doc(db, 'users', userId, 'tasks', taskId), {
+      deletedAt: now,
+      updatedAt: now,
     });
   }
 }

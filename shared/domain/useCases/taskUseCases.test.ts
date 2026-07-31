@@ -4,12 +4,15 @@ import type { TaskRepository } from '../repositories/taskRepository';
 import { CreateTaskUseCase } from './createTaskUseCase';
 import { ListTasksUseCase } from './listTasksUseCase';
 import { SetTaskCompletionUseCase } from './setTaskCompletionUseCase';
+import { SoftDeleteTaskUseCase } from './softDeleteTaskUseCase';
 
 class FakeTaskRepository implements TaskRepository {
   private tasksByUser = new Map<string, Task[]>();
   shouldFailToCreate = false;
+  shouldFailToSoftDelete = false;
   lastCreateUserId: string | null = null;
   lastCompletionChange: { userId: string; taskId: string; completed: boolean } | null = null;
+  lastSoftDelete: { userId: string; taskId: string } | null = null;
 
   async create(userId: string, input: CreateTaskInput): Promise<Task> {
     this.lastCreateUserId = userId;
@@ -27,6 +30,7 @@ class FakeTaskRepository implements TaskRepository {
       important: input.important,
       createdAt: now,
       updatedAt: now,
+      deletedAt: null,
     };
     const userTasks = this.tasksByUser.get(userId) ?? [];
     this.tasksByUser.set(userId, [...userTasks, task]);
@@ -39,6 +43,14 @@ class FakeTaskRepository implements TaskRepository {
 
   async setCompleted(userId: string, taskId: string, completed: boolean): Promise<void> {
     this.lastCompletionChange = { userId, taskId, completed };
+  }
+
+  async softDelete(userId: string, taskId: string): Promise<void> {
+    if (this.shouldFailToSoftDelete) {
+      throw new Error('Falha ao excluir.');
+    }
+
+    this.lastSoftDelete = { userId, taskId };
   }
 }
 
@@ -101,6 +113,34 @@ describe('task use cases', () => {
       taskId: 'task-1',
       completed: true,
     });
+  });
+
+  it('soft-deletes the task for the correct user', async () => {
+    const repository = new FakeTaskRepository();
+    const useCase = new SoftDeleteTaskUseCase(repository);
+
+    await useCase.execute('user-a', 'task-1');
+
+    expect(repository.lastSoftDelete).toEqual({
+      userId: 'user-a',
+      taskId: 'task-1',
+    });
+  });
+
+  it('rejects a soft-delete without an authenticated user', async () => {
+    const repository = new FakeTaskRepository();
+    const useCase = new SoftDeleteTaskUseCase(repository);
+
+    await expect(useCase.execute('', 'task-1')).rejects.toThrow('Usuário não autenticado.');
+    expect(repository.lastSoftDelete).toBeNull();
+  });
+
+  it('propagates a soft-delete persistence failure', async () => {
+    const repository = new FakeTaskRepository();
+    repository.shouldFailToSoftDelete = true;
+    const useCase = new SoftDeleteTaskUseCase(repository);
+
+    await expect(useCase.execute('user-a', 'task-1')).rejects.toThrow('Falha ao excluir.');
   });
 
   it('lists tasks isolated by user', async () => {

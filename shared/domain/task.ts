@@ -6,6 +6,7 @@ export interface Task {
   important: boolean;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date | null;
 }
 
 export interface CreateTaskInput {

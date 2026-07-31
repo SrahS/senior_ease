@@ -4,6 +4,7 @@ import type { Task } from '../../../shared/domain/task';
 import { CreateTaskUseCase } from '../../../shared/domain/useCases/createTaskUseCase';
 import { ListTasksUseCase } from '../../../shared/domain/useCases/listTasksUseCase';
 import { SetTaskCompletionUseCase } from '../../../shared/domain/useCases/setTaskCompletionUseCase';
+import { SoftDeleteTaskUseCase } from '../../../shared/domain/useCases/softDeleteTaskUseCase';
 
 type UseTasksOptions = {
   userId: string | null;
@@ -26,6 +27,7 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
             create: new CreateTaskUseCase(repository),
             list: new ListTasksUseCase(repository),
             setCompletion: new SetTaskCompletionUseCase(repository),
+            softDelete: new SoftDeleteTaskUseCase(repository),
           }
         : null,
     [repository],
@@ -118,6 +120,23 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
     }
   }, [tasks, userId, useCases]);
 
+  const deleteTask = useCallback(async (taskId: string) => {
+    if (!userId || !useCases) {
+      const authenticationError = new Error('Usuário não autenticado.');
+      setError(authenticationError.message);
+      throw authenticationError;
+    }
+
+    try {
+      setError(null);
+      await useCases.softDelete.execute(userId, taskId);
+      setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+    } catch (deleteError) {
+      setError(messageFrom(deleteError));
+      throw deleteError;
+    }
+  }, [userId, useCases]);
+
   const completedCount = useMemo(
     () => tasks.filter((task) => task.completed).length,
     [tasks],
@@ -131,5 +150,6 @@ export function useTasks({ userId, repository }: UseTasksOptions) {
     error,
     createTask,
     toggleTask,
+    deleteTask,
   };
 }
